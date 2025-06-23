@@ -1,7 +1,7 @@
 services:
-  postgres_app:
+  postgres_app_hackathon:
     image: postgres:latest
-    container_name: postgres_app
+    container_name: postgres_app_hackathon
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -14,32 +14,32 @@ services:
     networks:
       - backend
 
-  geolock-frontend:
+  frontend:
     build:
-      context: ./apps/geolock-frontend
+      context: ./apps/frontend
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     env_file: .env
     volumes:
-      - ./apps/geolock-frontend:/app
+      - ./apps/frontend:/app
       - /app/node_modules
     depends_on:
-      - postgres_app
+      - postgres_app_hackathon
     ports:
       - "${NEXT_PORT}:${NEXT_PORT}"
     networks:
       - backend
 
-  geolock-backend:
-    build: ./apps/geolock-backend
-    container_name: geolock-backend
+  backend:
+    build: ./apps/backend
+    container_name: backend
     env_file: .env
     environment:
       - DATABASE_URL=${DATABASE_URL}?sslmode=disable
     volumes:
-      - ./apps/geolock-backend:/app
+      - ./apps/backend:/app
     depends_on:
-      - postgres_app
+      - postgres_app_hackathon
     ports:
       - "${EXPRESS_PORT}:${EXPRESS_PORT}"
       - "${PRISMA_PORT}:${PRISMA_PORT}"
