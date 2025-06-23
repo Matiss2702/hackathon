@@ -1,0 +1,54 @@
+services:
+  postgres_app:
+    image: postgres:latest
+    container_name: postgres_app
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    volumes:
+      - postgres_app_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - backend
+
+  geolock-frontend:
+    build:
+      context: ./apps/geolock-frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    env_file: .env
+    volumes:
+      - ./apps/geolock-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - postgres_app
+    ports:
+      - "${NEXT_PORT}:${NEXT_PORT}"
+    networks:
+      - backend
+
+  geolock-backend:
+    build: ./apps/geolock-backend
+    container_name: geolock-backend
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}?sslmode=disable
+    volumes:
+      - ./apps/geolock-backend:/app
+    depends_on:
+      - postgres_app
+    ports:
+      - "${EXPRESS_PORT}:${EXPRESS_PORT}"
+      - "${PRISMA_PORT}:${PRISMA_PORT}"
+    networks:
+      - backend
+
+volumes:
+  postgres_app_data:
+
+networks:
+  backend:
+    driver: bridge

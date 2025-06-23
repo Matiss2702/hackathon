@@ -1,0 +1,26 @@
+name: 🔒 Vérification du nom de branche
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  check-branch-naming:
+    runs-on: self-hosted
+    name: Vérifie le nom de la branche source
+    steps:
+      - name: Obtenir le nom de la branche source
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "🔍 Nom de la branche source : $HEAD_BRANCH"
+
+          if [[ ! "$HEAD_BRANCH" =~ ^(feat|fix)\/.+$ ]]; then
+            echo "❌ Mauvais nom de branche : $HEAD_BRANCH"
+            echo "Le nom de la branche doit commencer par feat/ ou fix/"
+            exit 1
+          fi
+
+          echo "✅ Nom de branche valide : $HEAD_BRANCH"
