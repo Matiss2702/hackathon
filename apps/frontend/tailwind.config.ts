@@ -14,6 +14,9 @@ const config: Config = {
           dark: '#2563EB',
         },
       },
+      FontFamily: {
+        chillax: ['Chillax', 'sans-serif'],
+      }
     },
   },
   plugins: [],

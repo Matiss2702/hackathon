@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronsUpDown, LogOut, User } from "lucide-react";
+import { Building, ChevronsUpDown, LogOut, User } from "lucide-react";
 
 import {
   SidebarMenu,
@@ -72,9 +72,16 @@ export default function SidebarNavFooter() {
             sideOffset={4}
           >
             <DropdownMenuItem>
+              <Link href="/organization" className="flex items-center gap-2 w-full">
+                <Building />
+                Organisation
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
               <Link href="/profile" className="flex items-center gap-2 w-full">
                 <User />
-                Profile
+                Profil
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -84,7 +91,7 @@ export default function SidebarNavFooter() {
                 className="flex items-center gap-2 w-full cursor-pointer"
               >
                 <LogOut />
-                Logout
+                Se déconnecter
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>

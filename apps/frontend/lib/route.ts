@@ -14,10 +14,17 @@ const routeMap: RouteCategory[] = [
     tags: ['auth', 'hidden', 'middleware'],
   },
   {
+    path: '/admin',
+    tags: ['auth', 'hidden', 'middleware', 'admin']
+  },
+  {
     path: '/profile',
     tags: ['auth', 'hidden', 'middleware'],
   },
-
+  {
+    path: '/organization',
+    tags: ['auth', 'hidden', 'middleware'],
+  },
   { path: '/register',
     tags: ['hidden']
   },
