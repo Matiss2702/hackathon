@@ -3,13 +3,8 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Bell,
-  Car,
-  ChartSpline,
+  Building,
   ChevronRight,
-  CreditCard,
-  Earth,
-  MapPin,
   ShieldUser,
   User,
 } from 'lucide-react';
@@ -30,11 +25,9 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
-  SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { decodeJWT, JWTPayload } from '@/lib/decodeJWT';
 import { useAuth } from '@/context/AuthContext';
-import api from '@/lib/axios';
 
 const navPanel = [
   {
@@ -54,10 +47,13 @@ const navPanel = [
   },
 ];
 
+const profileItem = { title: 'Profil', url: '/profile', icon: User };
+
 type NavItem = {
   title: string;
   url: string;
   icon: React.ComponentType<any>;
+  subItems?: { title: string; url: string }[];
 };
 
 type NavGroup = {
@@ -65,17 +61,12 @@ type NavGroup = {
   items: NavItem[];
 };
 
-// Item profil (pour tous)
-const profileItem: NavItem = { title: 'Profil', url: '/profile', icon: User };
-
 export default function SidebarNavMenu() {
   const pathname = usePathname();
   const { token } = useAuth();
 
   const [user, setUser] = useState<JWTPayload | null>(null);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
-  // 1) Décodage du token
   useEffect(() => {
     if (!token) return;
     decodeJWT(token)
@@ -89,57 +80,38 @@ export default function SidebarNavMenu() {
       });
   }, [token]);
 
-  // 3) Détermination des rôles
-  const userPower = user?.roles?.[0]?.power ?? 0;
-  const isSuperAdmin = userPower >= 100;  // Super admin
-  const isEntityAdmin = userPower >= 50 && userPower < 100;  // Admin d'entité
-  const isSimpleUser = userPower < 50;  // Simple utilisateur
+  const userPower = useMemo(() => {
+    if (!user?.roles || !Array.isArray(user.roles)) return 0;
+    return Math.max(...user.roles.map(role => role.power ?? 0));
+  }, [user]);
 
+  const isSuperAdmin = userPower >= 100;
 
-  // 5) Construction de la navigation selon les permissions
   const navigation = useMemo(() => {
+    const nonAdminPanel: NavGroup[] = [
+      {
+        title: 'Organisation',
+        items: [
+          {
+            title: 'Mon organisation',
+            url: '/organization',
+            icon: Building,
+          },
+        ],
+      },
+    ];
     const nav: NavGroup[] = [];
 
-    // Super Admin : accès à tout (sans les paiements)
     if (isSuperAdmin) {
-      // Panel d'administration
       nav.push(...navPanel);
-      
-      
-      // Compte avec seulement le profil (pas de paiements)
-      nav.push({
-        title: 'Compte',
-        items: [profileItem],
-      });
-    }
-    // Admin d'entité
-    else if (isEntityAdmin) {
-      // Si pas d'abonnement : seulement profil et paiements
-
-      console.log("je dois mettre une condition ici")
-    }
-    // Simple utilisateur
-    else if (isSimpleUser) {
-      // Si pas d'abonnement : seulement profil
-      if (!hasActiveSubscription) {
-        nav.push({
-          title: 'Compte',
-          items: [profileItem],
-        });
-      }
-      // Si abonnement actif : accès aux fonctionnalités de base
-      else {
-        nav.push({
-          title: 'Compte',
-          items: [profileItem],
-        });
-      }
     }
 
+    nav.push(...nonAdminPanel);
+
+    nav.push({ title: 'Compte', items: [profileItem] });
     return nav;
-  }, [isSuperAdmin, isEntityAdmin, isSimpleUser,]);
+  }, [isSuperAdmin]);
 
-  // 6) Loading state
   if (!user) {
     return (
       <SidebarContent>
@@ -150,29 +122,17 @@ export default function SidebarNavMenu() {
     );
   }
 
-  console.log({
-    pathname,
-    userPower,
-    isSuperAdmin,
-    isEntityAdmin,
-    isSimpleUser,
-    hasActiveSubscription,
-    navigation,
-  });
-
-
   return (
     <SidebarContent>
-      {/* Affichage des groupes de navigation */}
       {navigation.map(group => (
         <SidebarGroup key={group.title}>
           <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
           <SidebarMenu>
             {group.items.map(item => {
-              // Pour les items avec sous-menus (comme Administration)
-              if ('subItems' in item && item.subItems) {
-                const isActive = pathname === item.url
-                  || (Array.isArray(item.subItems) && item.subItems.some(s => pathname.startsWith(s.url)));
+              if (item.subItems && Array.isArray(item.subItems)) {
+                const isActive =
+                  pathname === item.url ||
+                  item.subItems.some(sub => pathname.startsWith(sub.url));
                 return (
                   <Collapsible key={item.title} asChild defaultOpen>
                     <SidebarMenuItem>
@@ -185,7 +145,7 @@ export default function SidebarNavMenu() {
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          {Array.isArray(item.subItems) && item.subItems.map(sub => (
+                          {item.subItems.map(sub => (
                             <SidebarMenuSubItem key={sub.title}>
                               <SidebarMenuSubButton asChild isActive={pathname.startsWith(sub.url)}>
                                 <Link href={sub.url}>{sub.title}</Link>
@@ -198,15 +158,13 @@ export default function SidebarNavMenu() {
                   </Collapsible>
                 );
               }
-              
-              // Pour les items simples
+
               return (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                     <Link href={item.url} className="relative flex-1">
                       {item.icon && <item.icon className="mr-2" />}
                       <span>{item.title}</span>
-
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

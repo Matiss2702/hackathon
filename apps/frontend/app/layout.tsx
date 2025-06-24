@@ -1,11 +1,11 @@
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
-import { Roboto } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import Main from '@/components/main';
+import { Roboto } from 'next/font/google';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -18,10 +18,10 @@ const roboto = Roboto({
 
 export const metadata = {
   title: {
-    default: 'Geolock',
-    template: 'Geolock | %s',
+    default: 'Services CEO',
+    template: 'Services CEO | %s',
   },
-  description: 'GPS for everyone',
+  description: 'Services CEO est une plateforme de mise en relation entre les dirigeants d’entreprise et les prestataires de services.',
 };
 
 export default function RootLayout({
