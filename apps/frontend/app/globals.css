@@ -143,3 +143,16 @@ html,
 body {
   @apply h-full;
 }
+
+.bg-custom{
+  background: #053B84;
+  background: linear-gradient(90deg, rgba(5, 59, 132, 1) 0%, rgba(154, 7, 198, 1) 100%);
+  color: white;
+}
+
+.bg-custom:hover,
+.bg-custom:focus,
+.bg-custom:active{
+  background: #084da6;
+  background: linear-gradient(90deg, rgba(8, 77, 166, 1) 0%, rgba(185, 12, 237, 1) 100%);
+}
