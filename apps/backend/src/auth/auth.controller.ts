@@ -69,15 +69,6 @@ export class AuthController {
     return this.auth.refreshToken(refreshToken);
   }
 
-  /* ----------  GET CURRENT USER  ---------- */
-  @UseGuards(AuthGuard)
-  @Get('me')
-  @HttpCode(HttpStatus.OK)
-  getCurrentUser(@CurrentUser() user: User): User {
-    // Ici tu renvoies l'objet complet injecté par le guard
-    return user;
-  }
-
   /* ----------  FORGOT-PASSWORD  ---------- */
   @Public()
   @Post('forgot-password')

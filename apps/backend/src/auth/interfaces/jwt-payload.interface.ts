@@ -3,7 +3,6 @@ export interface JwtPayload {
   email: string;
   firstname: string;
   lastname: string;
-  roles: Role[];
 }
 
 export interface Role {

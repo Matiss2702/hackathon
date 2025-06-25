@@ -4,11 +4,54 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ModeToggle } from "@/components/toggle-theme";
 import { useAuth } from "@/context/AuthContext";
-import { LogOut, User, Menu, X, Bot } from "lucide-react";
+import { LogOut, User, Menu, X, BotMessageSquare, Building } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { hasTag } from "@/lib/route";
 import Logo from "@/components/logo";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "./ui/navigation-menu";
+
+const navMainMenu = [
+  {
+    title: 'Nos agents IA',
+    href: '/agents/ia',
+    icon: BotMessageSquare,
+    description: 'Découvrez nos agents IA pour créer vos besoins généralistes',
+  }
+]
+
+export function menuMain() {
+  return (
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Nos agents</NavigationMenuTrigger>
+          <NavigationMenuContent className="p-4">
+            <div className="grid gap-4 sm:w-[80vw] lg:w-[300px]">
+              { navMainMenu.map((item) => (
+                <NavigationMenuLink asChild key={item.href}>
+                  <Link href={item.href} className="flex items-start gap-4 hover:bg-accent p-4 rounded-md transition">
+                    <div className="flex gap-4 items-start">
+                      <div>
+                        <item.icon width={48} height={48} />
+                      </div>
+                      <div className="w-full grid gap-2">
+                        <p className="text-sm font-medium">{item.title}</p>
+                        <p className="text-muted-foreground text-sm leading-snug">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                    </Link>
+                </NavigationMenuLink>
+              ))}
+            </div>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
+  );
+}
 
 export default function Header() {
   const { isAuthenticated, logout } = useAuth();
@@ -60,18 +103,7 @@ export default function Header() {
 
         {/*MENU PRINCIPAL*/}
         <div className="hidden lg:block">
-          <nav>
-            <ul>
-              <li>
-                <Button asChild variant="ghost">
-                  <Link href="/agents" className="block w-full">
-                    <Bot />
-                    Nos agents
-                  </Link>
-                </Button>
-              </li>
-            </ul>
-          </nav>
+          {menuMain()}
         </div>
 
         <ul className="hidden lg:flex items-center gap-2">
@@ -96,7 +128,7 @@ export default function Header() {
             <>
               <li>
                 <Button variant="outline" asChild>
-                  <Link href="/login">S&apos;inscrire</Link>
+                  <Link href="/login">Se connecter</Link>
                 </Button>
               </li>
               <li>
@@ -131,18 +163,7 @@ export default function Header() {
             </div>
             <div className="flex flex-col gap-2 grow flex-between">
               <div className="grow">
-                <nav>
-                  <ul>
-                    <li>
-                      <Button asChild variant="ghost">
-                        <Link href="/agents" className="block w-full">
-                          <Bot />
-                          Nos agents
-                        </Link>
-                      </Button>
-                    </li>
-                  </ul>
-                </nav>
+                {menuMain()}
               </div>
               <div className="border-t pt-2">
                 {isAuthenticated ? (

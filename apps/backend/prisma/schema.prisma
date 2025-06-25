@@ -7,6 +7,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Roles {
+  user
+  admin
+}
+
 model User {
   id                               String    @id @default(uuid())
   lastname                         String
@@ -24,10 +29,25 @@ model User {
   email_verification_token         String?
   email_verification_token_expires DateTime?
 
+  // Champs prestataire
+  siret             String?
+  legalStatus       String?
+  identityDocument  String?
+  rib               String?
+  companyName       String?
+  companyImage      String?
+
+  image             String?
+
+  // Rôle
+  role              Roles
+
+  // Relations
   forgotPassword    ForgotPassword[]
   passwordHistory   PasswordHistory[]
   loginHistory      LoginHistory[]
-  roles             UserRole[]     
+  agentIAs          AgentIA[]
+  userAgentIAs      UserAgentIA[]
 }
 
 model ForgotPassword {
@@ -62,19 +82,24 @@ model LoginHistory {
   user User @relation(fields: [user_id], references: [id])
 }
 
-model Role {
-  id    String @id @default(uuid())
-  name  String @unique
-  power Int    @default(1)
-
-  users UserRole[]
+model AgentIA {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  tarif        Float
+  job          String
+  skills       String[]
+  description  String?
+  url          String
+  isVisible    Boolean  @default(true)
+  userAgentIAs UserAgentIA[]
 }
 
-model UserRole {
-  id      String @id @default(uuid())
-  role_id String
-  user_id String
-
-  role Role @relation(fields: [role_id], references: [id])
-  user User @relation(fields: [user_id], references: [id])
+model UserAgentIA {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  agentIA    AgentIA  @relation(fields: [agentIAId], references: [id])
+  agentIAId  String
+  subscribedAt DateTime @default(now())
 }

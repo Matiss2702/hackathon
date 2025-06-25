@@ -48,6 +48,7 @@ const navPanel = [
 ];
 
 const profileItem = { title: 'Profil', url: '/profile', icon: User };
+const agentsIaItem = { title: 'Mes agents IA', url: '/agents-ia', icon: User };
 
 type NavItem = {
   title: string;
@@ -108,7 +109,7 @@ export default function SidebarNavMenu() {
 
     nav.push(...nonAdminPanel);
 
-    nav.push({ title: 'Compte', items: [profileItem] });
+    nav.push({ title: 'Compte', items: [profileItem, agentsIaItem] });
     return nav;
   }, [isSuperAdmin]);
 

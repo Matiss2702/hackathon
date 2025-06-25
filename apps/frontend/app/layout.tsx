@@ -18,10 +18,10 @@ const roboto = Roboto({
 
 export const metadata = {
   title: {
-    default: 'Services CEO',
-    template: 'Services CEO | %s',
+    default: 'Lexa',
+    template: 'Lexa | %s',
   },
-  description: 'Services CEO est une plateforme de mise en relation entre les dirigeants d’entreprise et les prestataires de services.',
+  description: 'Lexa est une plateforme de mise en relation entre les dirigeants d’entreprise et les prestataires de services.',
 };
 
 export default function RootLayout({
