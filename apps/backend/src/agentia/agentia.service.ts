@@ -117,6 +117,17 @@ export class AgentiaService {
       );
     }
 
+    if (!dto.id) {
+      throw new NotFoundException('Agent ID not provided');
+    }
+
+    const agentExists = await this.prisma.agentIA.findUnique({
+      where: { id: dto.id },
+    });
+    if (!agentExists) {
+      throw new NotFoundException('Agent not found');
+    }
+
     const { ...safeDto } = dto;
 
     return this.prisma.agentIA.update({

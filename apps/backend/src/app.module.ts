@@ -8,6 +8,8 @@ import { EmailService } from './email.service';
 import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 import { AgentiaModule } from './agentia/agentia.module';
+import { OrganizationModule } from './organzation/organization.module';
+import { OrganizationService } from './organzation/organization.service';
 
 @Module({
   imports: [
@@ -18,12 +20,9 @@ import { AgentiaModule } from './agentia/agentia.module';
     AuthModule,
     UserModule,
     AgentiaModule,
+    OrganizationModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    EmailService,
-    UserService,
-  ],
+  providers: [AppService, EmailService, UserService, OrganizationService],
 })
 export class AppModule {}

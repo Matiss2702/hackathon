@@ -1,28 +1,22 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Eye, Pen } from "lucide-react"
+import { ArrowUpDown, Eye, Pen, Trash } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export type Menu = {
+export type Organization = {
   id: string
-  menu: string
-  createdAt: string
-  updatedAt: string
-  menuType: {
-    id: string
-    title: string
-  }
-  pages: [
-    {
-      id: string
-      is_active: boolean
-    }
-  ]
+  created_at: string
+  updated_at: string
+  vat : string
+  siren: string
+  siret: string
+  rib: string
+  name: string
 }
 
-export const columns: ColumnDef<Menu>[] = [
+export const columns: ColumnDef<Organization>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => {
@@ -38,32 +32,34 @@ export const columns: ColumnDef<Menu>[] = [
     },
   },
   {
-    id: "menuTypeTitle",
-    accessorKey: "menuType.title",
+    id: "name",
+    accessorKey: "name",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Menu
+        Agent
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => row.original.menuType.title,
+    cell: ({ row }) => row.original.name,
   },
   {
-    accessorKey: "pages",
+    id: "vat",
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-        Pages
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        TVA Intra.
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => row.original.pages.length,
-    sortingFn: (a, b) => a.original.pages.length - b.original.pages.length,
+    cell: ({ row }) => row.original.vat,
   },
   {
-    id: "pages_published",
+    id: "siren",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -71,15 +67,41 @@ export const columns: ColumnDef<Menu>[] = [
           column.toggleSorting(column.getIsSorted() === "asc")
         }
       >
-        Pages publiées
+        SIREN
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) =>
-      row.original.pages.filter((p) => p.is_active).length,
-    sortingFn: (a, b) =>
-      a.original.pages.filter((p) => p.is_active).length -
-      b.original.pages.filter((p) => p.is_active).length,
+    cell: ({ row }) => row.original.siren,
+  },
+  {
+    id: "siret",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      >
+        SIRET
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => row.original.siret,
+  },
+  {
+    id: "rib",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      >
+        RIB
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => row.original.rib,
   },
   {
     accessorKey: "created_at",
@@ -135,19 +157,25 @@ export const columns: ColumnDef<Menu>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      const menu = row.original;
+      const agent = row.original;
       return (
         <div className="flex space-x-2">
           <Button asChild variant="view">
-            <Link href={`/admin/menus/view/${menu.id}`}>
+            <Link href={`/admin/organizations/view/${agent.id}`}>
               <Eye />
-              <span className="sr-only">Voir {menu.menuType.title}</span>
+              <span className="sr-only">Voir {agent.name}</span>
             </Link>
           </Button>
           <Button asChild variant="edit">
-            <Link href={`/admin/menus/edit/${menu.id}`}>
+            <Link href={`/admin/organizations/edit/${agent.id}`}>
               <Pen />
-              <span className="sr-only">Modifier {menu.menuType.title}</span>
+              <span className="sr-only">Modifier {agent.name}</span>
+            </Link>
+          </Button>
+          <Button asChild variant="destructive">
+            <Link href={`/admin/organizations/delete/${agent.id}`}>
+              <Trash />
+              <span className="sr-only">Supprimer {agent.name}</span>
             </Link>
           </Button>
         </div>

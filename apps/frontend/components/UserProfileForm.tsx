@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from '../lib/axios';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
 import { useAuth } from '@/context/AuthContext';
 
 const initialState = {
@@ -10,13 +9,6 @@ const initialState = {
   firstname: '',
   email: '',
   phone_number: '',
-  siret: '',
-  legalStatus: '',
-  identityDocument: '',
-  rib: '',
-  companyName: '',
-  companyImage: '',
-  image: '',
 };
 
 export default function UserProfileForm() {
@@ -36,13 +28,6 @@ export default function UserProfileForm() {
           firstname: res.data.firstname || '',
           email: res.data.email || '',
           phone_number: res.data.phone_number || '',
-          siret: res.data.siret || '',
-          legalStatus: res.data.legalStatus || '',
-          identityDocument: res.data.identityDocument || '',
-          rib: res.data.rib || '',
-          companyName: res.data.companyName || '',
-          companyImage: res.data.companyImage || '',
-          image: res.data.image || '',
         });
         setUserId(res.data.id);
       })
@@ -62,8 +47,8 @@ export default function UserProfileForm() {
     try {
       await axios.patch(`/user/${userId}`, form, { headers: { Authorization: `Bearer ${token}` } });
       setSuccess('Profil mis à jour !');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Erreur lors de la mise à jour.');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la mise à jour.');
     } finally {
       setLoading(false);
     }
@@ -90,34 +75,6 @@ export default function UserProfileForm() {
         <div>
           <label htmlFor="phone_number" className="block mb-1 font-medium">Téléphone</label>
           <Input id="phone_number" name="phone_number" value={form.phone_number} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="siret" className="block mb-1 font-medium">SIRET (pour devenir prestataire)</label>
-          <Input id="siret" name="siret" value={form.siret} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="legalStatus" className="block mb-1 font-medium">Statut juridique</label>
-          <Input id="legalStatus" name="legalStatus" value={form.legalStatus} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="identityDocument" className="block mb-1 font-medium">Pièce d'identité (URL)</label>
-          <Input id="identityDocument" name="identityDocument" value={form.identityDocument} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="rib" className="block mb-1 font-medium">RIB</label>
-          <Input id="rib" name="rib" value={form.rib} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="companyName" className="block mb-1 font-medium">Nom de la société</label>
-          <Input id="companyName" name="companyName" value={form.companyName} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="companyImage" className="block mb-1 font-medium">Image société (URL)</label>
-          <Input id="companyImage" name="companyImage" value={form.companyImage} onChange={handleChange} />
-        </div>
-        <div className="md:col-span-2">
-          <label htmlFor="image" className="block mb-1 font-medium">Logo / Photo de profil (URL)</label>
-          <Input id="image" name="image" value={form.image} onChange={handleChange} placeholder="URL de votre logo ou photo de profil" />
         </div>
       </div>
       <Button type="submit" disabled={loading || !userId}>{loading ? 'Envoi...' : 'Enregistrer'}</Button>

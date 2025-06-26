@@ -5,33 +5,33 @@ import { useEffect, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DataTable } from "./data-table";
-import { columns, type Menu } from "./columns"
+import { columns, type Organization } from "./columns"
 
-export default function AdminMenus() {
+export default function OrganizationPage() {
   const [isLoading, setIsLoading] = useState(true);
 
-  const [menus, setMenus] = useState<Menu[]>([]);
+  const [organization, Organizations] = useState<Organization[]>([]);
 
   useEffect(() => {
-    const fetchMenus = async () => {
+    const fetchOrganizations = async () => {
       try {
-        const response = await api.get("/menu");
-        setMenus(response.data);
+        const response = await api.get("/organization");
+        Organizations(response.data);
       } catch (error) {
-        setMenus([]);
-        console.error("Erreur lors de la récupération des menus :", error);
+        Organizations([]);
+        console.error("Erreur lors de la récupération des organizations :", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMenus();
+    fetchOrganizations();
   }, []);
 
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Menus</h1>
+        <h1 className="text-2xl font-bold">Organisations</h1>
       </div>
       {isLoading ? (
         <div className="mt-8 flex justify-center">
@@ -39,17 +39,17 @@ export default function AdminMenus() {
         </div>
       ) : (
         <>
-          {menus.length === 0 ? (
+          {organization.length === 0 ? (
             <Alert variant="destructive">
               <TriangleAlert />
-              <AlertTitle>Aucun menu n&apos;a été trouvée</AlertTitle>
-              <AlertDescription>Veuillez créer vos premières menus !</AlertDescription>
+              <AlertTitle>Aucune organisation n&apos;a été trouvée</AlertTitle>
+              <AlertDescription>Veuillez créer vos premières organisations !</AlertDescription>
             </Alert>
           ) : (
             <>
-              <p className="mt-4">Liste des menus récupérées :</p>
+              <p className="mt-4">Liste des organisations récupérées :</p>
               <div className="w-full">
-                <DataTable columns={columns} data={menus} />
+                <DataTable columns={columns} data={organization} />
               </div>
             </>
           )}

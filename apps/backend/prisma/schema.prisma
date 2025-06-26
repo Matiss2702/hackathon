@@ -10,6 +10,7 @@ generator client {
 enum Roles {
   user
   admin
+  organization_admin
 }
 
 model User {
@@ -28,15 +29,6 @@ model User {
   is_email_verified                Boolean   @default(false)
   email_verification_token         String?
   email_verification_token_expires DateTime?
-
-  // Champs prestataire
-  siret             String?
-  legalStatus       String?
-  identityDocument  String?
-  rib               String?
-  companyName       String
-  companyImage      String?
-
   image             String?
 
   // Rôle
@@ -50,6 +42,10 @@ model User {
   userAgentIAs      UserAgentIA[]
   createdAgents     AgentIA[]     @relation("CreatedBy")
   updatedAgents     AgentIA[]     @relation("UpdatedBy")
+  createdOrganization     Organization[]     @relation("CreatedBy")
+  updatedOrganization     Organization[]     @relation("UpdatedBy")
+  organization      Organization?  @relation(fields: [organization_id], references: [id])
+  organization_id   String?
 }
 
 model ForgotPassword {
@@ -115,4 +111,24 @@ model UserAgentIA {
   agentIA    AgentIA  @relation(fields: [agentIAId], references: [id])
   agentIAId  String
   subscribedAt DateTime @default(now())
+}
+
+model Organization {
+  id                String    @id @default(uuid())
+  name              String
+  siret             String
+  siren             String
+  rib               String
+  vat               String
+
+  users             User[]
+  created_by        String?
+  createdBy         User?     @relation("CreatedBy", fields: [created_by], references: [id])
+  created_at        DateTime  @default(now())
+
+  updated_by        String?
+  updatedBy         User?     @relation("UpdatedBy", fields: [updated_by], references: [id])
+  updated_at        DateTime  @updatedAt
+
+  deleted_at        DateTime?
 }
