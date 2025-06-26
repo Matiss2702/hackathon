@@ -10,6 +10,7 @@ export default function Logo() {
         width={50}
         height={30}
         style={{ height: "auto", width: "auto" }}
+        priority={true}
       />
     </>
   )

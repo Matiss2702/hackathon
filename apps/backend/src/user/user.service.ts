@@ -10,7 +10,10 @@ export class UserService {
   }
 
   async findOne(id: string) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { organization: true },
+    });
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
@@ -22,4 +25,4 @@ export class UserService {
   async remove(id: string) {
     return this.prisma.user.delete({ where: { id } });
   }
-} 
+}

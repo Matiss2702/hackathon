@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,
-                  @typescript-eslint/no-unsafe-call,
-                  @typescript-eslint/no-unsafe-member-access,
-                  @typescript-eslint/no-unsafe-return,
-                  @typescript-eslint/no-unsafe-argument */
 import {
   ConflictException,
   Injectable,
@@ -58,7 +53,6 @@ export class AuthService {
           lastname: dto.lastname,
           phone_number: dto.phoneNumber,
           is_cgu_accepted: dto.isCguAccepted,
-          companyName: dto.companyName || '',
           is_vgcl_accepted: dto.isVgclAccepted,
           email_verification_token: verificationToken,
           email_verification_token_expires: verificationTokenExpires,
@@ -170,7 +164,7 @@ export class AuthService {
   /* ----------  REFRESH TOKEN  ---------- */
   async refreshToken(refreshToken: string) {
     try {
-      const payload = await this.jwt.verifyAsync(refreshToken, {
+      const payload = await this.jwt.verifyAsync<JwtPayload>(refreshToken, {
         secret: this.config.get('JWT_REFRESH_SECRET'),
       });
 
@@ -429,7 +423,8 @@ export class AuthService {
       return {
         code: 401,
         title: 'Lien expiré',
-        description: 'Ce lien de réinitialisation a expiré. Veuillez en demander un nouveau.',
+        description:
+          'Ce lien de réinitialisation a expiré. Veuillez en demander un nouveau.',
       };
     }
 

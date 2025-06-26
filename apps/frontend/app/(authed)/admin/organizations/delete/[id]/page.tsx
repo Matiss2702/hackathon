@@ -9,45 +9,50 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 
-type Agent = {
+type Organization = {
   id: string;
   name: string;
-  description: string;
+  vat: string;
+  siren: string;
+  siret: string;
+  rib: string;
+  deleted_at?: Date | null
 };
 
-export default function AgentDeletePage() {
+export default function OrganizationDeletePage() {
   const router = useRouter();
   const { id } = useParams();
-  const [agent, setAgent] = useState<Agent | null>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchAgent = async () => {
+    const fetchOrganization = async () => {
       try {
-        const res = await api.get(`/agentia/${id}`);
-        setAgent(res.data);
+        const res = await api.get(`/organization/${id}`);
+        setOrganization(res.data);
       } catch (error) {
-        toast.error("Impossible de charger l'agent.");
+        toast.error("Impossible de charger l'organisation.");
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) fetchAgent();
+    if (id) fetchOrganization();
   }, [id]);
 
   const handleDelete = async () => {
     if (!id) return;
     setSubmitting(true);
     try {
-      await api.delete(`/agentia/${id}`);
-      toast.success("Agent supprimé avec succès !", {
+      await api.delete(`/organization/${id}`);
+      toast.success("Organisation supprimée avec succès !", {
         position: "top-center",
-        description: "L'agent a été supprimé définitivement. Vous allez être redirigé.",
+        description:
+          "L'organisation a été supprimée. Redirection en cours.",
       });
-      router.push("/agents-ia");
+      router.push("/admin/organizations");
     } catch (error) {
       toast.error("Échec de la suppression.");
       console.error(error);
@@ -60,15 +65,26 @@ export default function AgentDeletePage() {
     return <Skeleton className="w-full h-40 rounded-lg" />;
   }
 
-  if (!agent) {
-    return <p className="text-muted-foreground">Agent introuvable</p>;
+  if (!organization) {
+    return <p className="text-muted-foreground">Organisation introuvable</p>;
+  }
+
+  if (organization.deleted_at) {
+    return (
+      <div className="space-y-6">
+        <p className="text-red-500">Cette organisation a déjà été supprimée.</p>
+        <Button asChild>
+          <Link href="/admin/organizations">Retour aux organisations</Link>
+        </Button>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div>
         <Button asChild>
-          <Link href="/agents-ia" className="flex items-center gap-2">
+          <Link href="/admin/organizations" className="flex items-center gap-2">
             <ArrowLeft size={18} />
             Retour
           </Link>
@@ -78,17 +94,20 @@ export default function AgentDeletePage() {
       <div className="flex items-center gap-3 text-destructive">
         <AlertTriangle size={28} />
         <h1 className="text-2xl font-bold">
-          Suppression irréversible de l&apos;agent
+          Suppression de l&apos;organisation
         </h1>
       </div>
 
       <div className="border rounded-lg p-4 space-y-2 bg-muted">
-        <p><strong>Nom :</strong> {agent.name}</p>
-        <p><strong>Description :</strong> {agent.description}</p>
+        <p><strong>Nom :</strong> {organization.name}</p>
+        <p><strong>TVA :</strong> {organization.vat}</p>
+        <p><strong>SIREN :</strong> {organization.siren}</p>
+        <p><strong>SIRET :</strong> {organization.siret}</p>
+        <p><strong>RIB :</strong> {organization.rib}</p>
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Cette action est <strong>définitive</strong>. Aucune récupération ne sera possible.
+        Vous pourrez la récupérer !
       </p>
 
       <div className="flex gap-4">
@@ -97,10 +116,10 @@ export default function AgentDeletePage() {
           onClick={handleDelete}
           disabled={submitting}
         >
-          {submitting ? "Suppression..." : "Supprimer définitivement"}
+          {submitting ? "Suppression..." : "Supprimer"}
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/agents-ia">Annuler</Link>
+          <Link href="/admin/organizations">Annuler</Link>
         </Button>
       </div>
     </div>

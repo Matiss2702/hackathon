@@ -12,6 +12,7 @@ async function main() {
   await prisma.passwordHistory.deleteMany();
   await prisma.forgotPassword.deleteMany();
   await prisma.loginHistory.deleteMany();
+  await prisma.organization.deleteMany();
   await prisma.user.deleteMany();
   console.log('✅ Données existantes supprimées');
 
@@ -23,7 +24,6 @@ async function main() {
       lastname: 'Principal',
       email: 'admin@admin.fr',
       phone_number: faker.phone.number(),
-      companyName: 'Admin Company',
       is_cgu_accepted: true,
       is_vgcl_accepted: true,
       theme_mode: 'dark',
@@ -36,6 +36,20 @@ async function main() {
     data: {
       password: genericPassword,
       user_id: adminUser.id,
+    },
+  });
+
+  const siren = faker.string.numeric(9);
+  await prisma.organization.create({
+    data: {
+      name: 'Lexa',
+      siren: `${siren}`,
+      siret: `${siren}${faker.string.numeric(5)}`,
+      rib: `FR${faker.string.numeric(2)}${faker.string.numeric(10)}${faker.string.numeric(11)}${faker.string.numeric(2)}`,
+      vat: `FR${faker.string.numeric(2)}${siren}`,
+      createdBy: { connect: { id: adminUser.id } },
+      updatedBy: { connect: { id: adminUser.id } },
+      users: { connect: { id: adminUser.id } },
     },
   });
 
@@ -55,7 +69,6 @@ async function main() {
         lastname,
         email,
         phone_number: phone,
-        companyName: faker.company.name(),
         is_cgu_accepted: true,
         is_vgcl_accepted: true,
         theme_mode: 'light',

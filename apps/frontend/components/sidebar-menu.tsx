@@ -88,6 +88,7 @@ export default function SidebarNavMenu() {
         title: 'Administration',
         items: [
           { title: 'Utilisateurs', url: '/admin/users', icon: User },
+          { title: 'Organisations', url: '/admin/organizations', icon: Building },
           { title: 'Agents IA', url: '/admin/agents-ia', icon: BotMessageSquare },
         ],
       });

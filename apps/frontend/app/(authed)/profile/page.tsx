@@ -1,15 +1,20 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import UserProfileForm from '@/components/UserProfileForm';
+import { toast } from 'sonner';
 
 export default function ProfilePage() {
-  const { logout, token } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    console.log('🔓 Bouton logout cliqué');
+    toast.success('Vous avez été déconnecté avec succès.',
+      {
+        position: 'top-center',
+        description: 'Vous allez être redirigé vers la page de connexion.',
+      }
+    );
     logout();
   };
 
@@ -40,6 +45,24 @@ export default function ProfilePage() {
 
         {/* Formulaire de profil utilisateur */}
         <UserProfileForm />
+
+        {/* Logout Button */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Déconnexion</CardTitle>
+            <CardDescription>
+              Se déconnecter de votre compte
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Se déconnecter
+            </button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
