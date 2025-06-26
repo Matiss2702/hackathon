@@ -1,12 +1,12 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Building,
   ChevronRight,
-  ShieldUser,
   User,
+  BotMessageSquare,
 } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 
@@ -28,31 +28,14 @@ import {
 } from '@/components/ui/sidebar';
 import { decodeJWT, JWTPayload } from '@/lib/decodeJWT';
 import { useAuth } from '@/context/AuthContext';
-
-const navPanel = [
-  {
-    title: 'Panel',
-    items: [
-      {
-        title: 'Administration',
-        url: '/admin',
-        icon: ShieldUser,
-        subItems: [
-          { title: 'Utilisateurs', url: '/admin/users' },
-          { title: 'Pages', url: '/admin/pages' },
-          { title: 'Menus', url: '/admin/menus' },
-        ],
-      },
-    ],
-  },
-];
+import api from '@/lib/axios';
 
 const profileItem = { title: 'Profil', url: '/profile', icon: User };
 
 type NavItem = {
   title: string;
   url: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   subItems?: { title: string; url: string }[];
 };
 
@@ -61,56 +44,78 @@ type NavGroup = {
   items: NavItem[];
 };
 
+type User = {
+  role : string;
+}
+
 export default function SidebarNavMenu() {
   const pathname = usePathname();
+  const router = useRouter();
   const { token } = useAuth();
-
-  const [user, setUser] = useState<JWTPayload | null>(null);
+  const [getToken, setToken] = useState<JWTPayload | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (!token) return;
     decodeJWT(token)
-      .then(decoded => {
-        console.log('👤 decoded user:', decoded);
-        setUser(decoded);
+      .then(async decoded => {
+        setToken(decoded);
+        try {
+          if (!decoded || !decoded.id) {
+            return;
+          }
+
+          const response = await api.get('/user/me')
+          setUser(response.data);
+        } catch {
+          setToken(null);
+          router.push('/login');
+        }
       })
       .catch(err => {
         console.error('❌ token invalide', err);
-        setUser(null);
+        setToken(null);
       });
-  }, [token]);
+  }, [getToken, router, token, user]);
 
-  const userPower = useMemo(() => {
-    if (!user?.roles || !Array.isArray(user.roles)) return 0;
-    return Math.max(...user.roles.map(role => role.power ?? 0));
-  }, [user]);
+  const isAdmin = user?.role === 'admin';
 
-  const isSuperAdmin = userPower >= 100;
+  const navigation: NavGroup[] = useMemo(() => {
+    const groups: NavGroup[] = [];
 
-  const navigation = useMemo(() => {
-    const nonAdminPanel: NavGroup[] = [
-      {
-        title: 'Organisation',
+    if (isAdmin) {
+      groups.push({
+        title: 'Administration',
         items: [
-          {
-            title: 'Mon organisation',
-            url: '/organization',
-            icon: Building,
-          },
+          { title: 'Utilisateurs', url: '/admin/users', icon: User },
+          { title: 'Agents IA', url: '/admin/agents-ia', icon: BotMessageSquare },
         ],
-      },
-    ];
-    const nav: NavGroup[] = [];
-
-    if (isSuperAdmin) {
-      nav.push(...navPanel);
+      });
     }
 
-    nav.push(...nonAdminPanel);
+    groups.push({
+      title: 'Organisation',
+      items: [
+        {
+          title: 'Mon organisation',
+          url: '/organization',
+          icon: Building,
+        },
+        {
+          title: 'Agents IA',
+          url: '/agents-ia',
+          icon: BotMessageSquare,
+        }
+      ],
+    });
 
-    nav.push({ title: 'Compte', items: [profileItem] });
-    return nav;
-  }, [isSuperAdmin]);
+    groups.push({
+      title: 'Compte',
+      items: [profileItem],
+    });
+
+    return groups;
+  }, [isAdmin]);
 
   if (!user) {
     return (
@@ -129,10 +134,11 @@ export default function SidebarNavMenu() {
           <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
           <SidebarMenu>
             {group.items.map(item => {
-              if (item.subItems && Array.isArray(item.subItems)) {
+              if (item.subItems?.length) {
                 const isActive =
                   pathname === item.url ||
                   item.subItems.some(sub => pathname.startsWith(sub.url));
+
                 return (
                   <Collapsible key={item.title} asChild defaultOpen>
                     <SidebarMenuItem>

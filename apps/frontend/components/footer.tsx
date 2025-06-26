@@ -23,7 +23,7 @@ export default function Footer() {
                 <span className="sr-only">Page d&apos;accueil</span>
               </Link>
               <p>
-                Lexa est une plateforme de création de sites web et d&apos;applications avec l&apos;IA et nos partenaires
+                Lexa est une plateforme de création de sites web et d&apos;applications avec l&apos;IA
               </p>
             </div>
           </div>

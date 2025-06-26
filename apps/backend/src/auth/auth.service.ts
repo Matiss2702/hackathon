@@ -8,8 +8,6 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
-  ForbiddenException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -38,46 +36,21 @@ export class AuthService {
   ) {}
 
   /* ----------  REGISTER  ---------- */
- async register(dto: RegisterDto) {
-    console.log("\n🚀 Début du processus d'inscription...");
-    console.log(`📧 Email: ${dto.email}`);
-    console.log(`👤 Nom: ${dto.lastname} ${dto.firstname}`);
-
+  async register(dto: RegisterDto) {
     try {
-      console.log("\n🔍 Vérification de l'existence de l'utilisateur...");
       const exists = await this.prisma.user.findUnique({
         where: { email: dto.email },
         select: { id: true },
       });
       if (exists) {
-        console.log('❌ Email déjà utilisé');
         throw new ConflictException('Email déjà utilisé');
       }
-      console.log('✅ Email disponible');
-
-      console.log('\n🔒 Hachage du mot de passe...');
       const hash = await bcrypt.hash(dto.password, SALT_ROUNDS);
-      console.log('✅ Mot de passe haché');
-
-      console.log('\n🔑 Génération du token de vérification...');
       const verificationToken = crypto.randomBytes(32).toString('hex');
       const verificationTokenExpires = new Date(
         Date.now() + EMAIL_VERIFICATION_EXPIRY,
       );
-      console.log('✅ Token généré');
 
-      console.log('\n🎯 Récupération du rôle par défaut (plus faible power)...');
-      const defaultRole = await this.prisma.role.findFirst({
-        orderBy: { power: 'asc' },
-        select: { id: true },
-      });
-      if (!defaultRole) {
-        console.log('❌ Aucun rôle par défaut trouvé');
-        throw new InternalServerErrorException('Aucun rôle par défaut trouvé');
-      }
-      console.log(`✅ Rôle trouvé : ${defaultRole.id}`);
-
-      console.log("\n📝 Création de l'utilisateur avec rôle par défaut...");
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
@@ -85,21 +58,21 @@ export class AuthService {
           lastname: dto.lastname,
           phone_number: dto.phoneNumber,
           is_cgu_accepted: dto.isCguAccepted,
+          companyName: dto.companyName || '',
           is_vgcl_accepted: dto.isVgclAccepted,
-          passwordHistory: { create: { password: hash } },
           email_verification_token: verificationToken,
           email_verification_token_expires: verificationTokenExpires,
-          roles: {
-            create: {
-              role: { connect: { id: defaultRole.id } },
-            },
-          },
+          role: 'user',
         },
         select: { id: true, email: true, firstname: true },
       });
-      console.log('✅ Utilisateur créé avec succès et rôle attribué');
 
-      console.log('\n📧 Envoi de l’email de vérification...');
+      await this.prisma.passwordHistory.create({
+        data: {
+          password: hash,
+          user_id: user.id,
+        },
+      });
       await this.emailService.sendVerificationEmail(
         user.email,
         verificationToken,
@@ -107,79 +80,47 @@ export class AuthService {
 
       return { id: user.id, email: user.email };
     } catch (error) {
-      console.error("\n❌ Erreur dans le processus d'inscription:");
       console.error(error);
       throw error;
     }
   }
 
-
   /* ----------  LOGIN  ---------- */
   async login(dto: LoginDto) {
-    console.log('\n🚀 Début du processus de connexion...');
-    console.log(`📧 Email: ${dto.email}`);
-
     try {
-      console.log("\n🔍 Recherche de l'utilisateur...");
       const user = await this.prisma.user.findUnique({
         where: { email: dto.email },
         include: {
           passwordHistory: { orderBy: { created_at: 'desc' }, take: 1 },
-          roles: {
-            select: { role: { select: { name: true, power: true, id: true } } },
-          },
         },
       });
 
       if (!user) {
-        console.log('❌ Utilisateur non trouvé');
         throw new UnauthorizedException('Identifiants invalides');
       }
-      console.log('✅ Utilisateur trouvé');
-
-      if (user.passwordHistory.length === 0) {
-        console.log("❌ Aucun mot de passe trouvé dans l'historique");
-        throw new UnauthorizedException('Identifiants invalides');
-      }
-      console.log('✅ Historique des mots de passe trouvé');
 
       if (!user.is_email_verified) {
-        console.log('❌ Email non vérifié');
         throw new UnauthorizedException(
           'Veuillez vérifier votre email avant de vous connecter',
         );
       }
-      console.log('✅ Email vérifié');
 
-      console.log('\n🔒 Vérification du mot de passe...');
       const ok = await bcrypt.compare(
         dto.password,
         user.passwordHistory[0].password,
       );
       if (!ok) {
-        console.log('❌ Mot de passe incorrect');
         throw new UnauthorizedException('Identifiants invalides');
       }
-      console.log('✅ Mot de passe correct');
 
-      console.log("\n📝 Création de l'historique de connexion...");
       await this.prisma.loginHistory.create({ data: { user_id: user.id } });
-      console.log('✅ Historique de connexion créé');
 
-      console.log('\n🔑 Génération des tokens...');
       const payload: JwtPayload = {
         sub: user.id,
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
-        roles:
-          user.roles.length > 0
-            ? user.roles.map((r) => ({
-                id: r.role.id,
-                name: r.role.name,
-                power: r.role.power,
-              }))
-            : [{ name: 'USER', power: 10, id: 'default-role-id' }],
+        id: user.id,
       };
 
       const [accessToken, refreshToken] = await Promise.all([
@@ -192,14 +133,12 @@ export class AuthService {
           expiresIn: '7d',
         }),
       ]);
-      console.log('✅ Tokens générés avec succès');
 
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
       };
     } catch (error) {
-      console.error('\n❌ Erreur dans le processus de connexion:');
       console.error(error);
       throw error;
     }
@@ -237,11 +176,6 @@ export class AuthService {
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        include: {
-          roles: {
-            select: { role: { select: { name: true, power: true, id: true } } },
-          },
-        },
       });
 
       if (!user) throw new UnauthorizedException();
@@ -251,14 +185,7 @@ export class AuthService {
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
-        roles:
-          user.roles.length > 0
-            ? user.roles.map((r) => ({
-                id: r.role.id,
-                name: r.role.name,
-                power: r.role.power,
-              }))
-            : [{ name: 'USER', power: 10, id: 'default-role-id' }],
+        id: user.id,
       };
 
       return {
@@ -457,24 +384,13 @@ export class AuthService {
           select: {
             id: true,
             email: true,
-            passwordHistory: {
-              orderBy: { created_at: 'desc' },
-              take: 1,
-            },
+            passwordHistory: { orderBy: { created_at: 'desc' }, take: 1 },
           },
         },
       },
     });
 
-    if (!forgotPassword) {
-      return {
-        code: 404,
-        title: 'Lien invalide',
-        description: 'Ce lien de réinitialisation est invalide.',
-      };
-    }
-
-    if (!forgotPassword.user) {
+    if (!forgotPassword || !forgotPassword.user) {
       return {
         code: 404,
         title: 'Utilisateur non trouvé',
@@ -483,19 +399,21 @@ export class AuthService {
       };
     }
 
-    if (forgotPassword.user.passwordHistory.length === 0) {
+    const lastPassword = forgotPassword.user.passwordHistory[0]?.password;
+    if (!lastPassword) {
       return {
         code: 404,
-        title: 'Historique de mot de passe vide',
+        title: 'Aucun mot de passe trouvé',
         description: 'Aucun mot de passe trouvé pour cet utilisateur.',
       };
     }
 
-    if (forgotPassword.user.passwordHistory[0].password === dto.oldPassword) {
+    const samePassword = await bcrypt.compare(dto.oldPassword, lastPassword);
+    if (!samePassword) {
       return {
         code: 409,
-        title: 'Mot de passe identique',
-        description: "Le nouveau mot de passe doit être différent de l'ancien.",
+        title: 'Mot de passe incorrect',
+        description: "L'ancien mot de passe est incorrect.",
       };
     }
 
@@ -504,7 +422,6 @@ export class AuthService {
         code: 401,
         title: 'Token invalide',
         description: 'Ce Token de réinitialisation est invalide.',
-
       };
     }
 
@@ -512,8 +429,7 @@ export class AuthService {
       return {
         code: 401,
         title: 'Lien expiré',
-        description:
-          'Ce lien de réinitialisation a expiré. Veuillez en demander un nouveau.',
+        description: 'Ce lien de réinitialisation a expiré. Veuillez en demander un nouveau.',
       };
     }
 
@@ -527,14 +443,15 @@ export class AuthService {
     }
 
     const hash = await bcrypt.hash(dto.newPassword, SALT_ROUNDS);
+    await this.prisma.passwordHistory.create({
+      data: {
+        password: hash,
+        user_id: forgotPassword.user.id,
+      },
+    });
     await this.prisma.user.update({
       where: { email: forgotPassword.user.email },
-      data: {
-        passwordHistory: {
-          create: { password: hash },
-        },
-        updated_at: new Date(),
-      },
+      data: { updated_at: new Date() },
     });
 
     await this.prisma.forgotPassword.update({
@@ -546,7 +463,7 @@ export class AuthService {
       await this.emailService.sendResetPasswordEmail(forgotPassword.user.email);
     } catch (error) {
       console.error(
-        "❌ Erreur lors de l'envoi de l'email de \"Mot de passe réinitialisé\" :",
+        '❌ Erreur lors de l\'envoi de l\'email de "Mot de passe réinitialisé" :',
         error,
       );
     }
@@ -565,20 +482,13 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const userRole = await this.prisma.userRole.findFirst({
-      where: { user_id: user.sub },
-      include: { role: true },
+    const dbUser = await this.prisma.user.findUnique({
+      where: { id: user.sub },
     });
-    if (!userRole) throw new ForbiddenException();
-
-    const power = userRole.role.power;
-
-    if (power >= 100) {
-      return this.prisma.loginHistory.findMany({
-        orderBy: { date: 'desc' },
-      });
+    if (!dbUser) throw new UnauthorizedException();
+    if (dbUser.role === 'admin') {
+      return this.prisma.loginHistory.findMany({ orderBy: { date: 'desc' } });
     }
-
     return this.prisma.loginHistory.findMany({
       where: { user_id: user.sub },
       orderBy: { date: 'desc' },

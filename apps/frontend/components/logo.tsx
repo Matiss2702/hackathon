@@ -9,6 +9,7 @@ export default function Logo() {
         alt="Lexa Logo"
         width={50}
         height={30}
+        style={{ height: "auto", width: "auto" }}
       />
     </>
   )

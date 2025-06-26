@@ -52,4 +52,9 @@ export class RegisterDto {
   @Expose({ name: 'is_vgcl_accepted' })
   @Type(() => Boolean)
   isVgclAccepted: boolean;
+
+  @IsString()
+  @Expose({ name: 'company_name' })
+  @Type(() => String)
+  companyName?: string;
 }

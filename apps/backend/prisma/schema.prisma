@@ -7,6 +7,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Roles {
+  user
+  admin
+}
+
 model User {
   id                               String    @id @default(uuid())
   lastname                         String
@@ -24,10 +29,27 @@ model User {
   email_verification_token         String?
   email_verification_token_expires DateTime?
 
+  // Champs prestataire
+  siret             String?
+  legalStatus       String?
+  identityDocument  String?
+  rib               String?
+  companyName       String
+  companyImage      String?
+
+  image             String?
+
+  // Rôle
+  role              Roles
+
+  // Relations
   forgotPassword    ForgotPassword[]
   passwordHistory   PasswordHistory[]
   loginHistory      LoginHistory[]
-  roles             UserRole[]     
+  agentIAs          AgentIA[]
+  userAgentIAs      UserAgentIA[]
+  createdAgents     AgentIA[]     @relation("CreatedBy")
+  updatedAgents     AgentIA[]     @relation("UpdatedBy")
 }
 
 model ForgotPassword {
@@ -62,19 +84,35 @@ model LoginHistory {
   user User @relation(fields: [user_id], references: [id])
 }
 
-model Role {
-  id    String @id @default(uuid())
-  name  String @unique
-  power Int    @default(1)
+model AgentIA {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  tarif_unique       Float
+  tarif_monthly      Float?
+  tarif_annual       Float?
+  name         String
+  skills       String[]
+  description  String?
+  url          String
+  isVisible    Boolean  @default(true)
+  userAgentIAs UserAgentIA[]
 
-  users UserRole[]
+  created_by    String?
+  createdBy     User?              @relation("CreatedBy", fields: [created_by], references: [id])
+
+  updated_by    String?
+  updatedBy     User?              @relation("UpdatedBy", fields: [updated_by], references: [id])
+
+  created_at                       DateTime  @default(now())
+  updated_at                       DateTime  @updatedAt   
 }
 
-model UserRole {
-  id      String @id @default(uuid())
-  role_id String
-  user_id String
-
-  role Role @relation(fields: [role_id], references: [id])
-  user User @relation(fields: [user_id], references: [id])
+model UserAgentIA {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  agentIA    AgentIA  @relation(fields: [agentIAId], references: [id])
+  agentIAId  String
+  subscribedAt DateTime @default(now())
 }

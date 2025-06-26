@@ -1,7 +1,9 @@
 'use client';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import UserProfileForm from '@/components/UserProfileForm';
 
 export default function ProfilePage() {
   const { logout, token } = useAuth();
@@ -21,38 +23,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Informations du compte</CardTitle>
-            <CardDescription>
-              Détails de votre compte actuellement connecté
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Statut</label>
-              <p className="text-sm text-muted-foreground">✅ Connecté</p>
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium">Token (aperçu)</label>
-              <p className="text-sm text-muted-foreground font-mono">
-                {token ? token.substring(0, 20) + '...' : 'Aucun token'}
-              </p>
-            </div>
-
-            <div className="pt-4">
-              <Button 
-                onClick={handleLogout}
-                variant="destructive"
-                className="w-full sm:w-auto"
-              >
-                Se déconnecter
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
+        {/* Card Navigation */}
         <Card>
           <CardHeader>
             <CardTitle>Navigation</CardTitle>
@@ -66,6 +37,9 @@ export default function ProfilePage() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Formulaire de profil utilisateur */}
+        <UserProfileForm />
       </div>
     </div>
   );
