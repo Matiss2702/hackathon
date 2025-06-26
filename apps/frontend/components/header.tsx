@@ -14,9 +14,21 @@ import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMe
 const navMainMenu = [
   {
     title: 'Nos agents IA',
+<<<<<<< feat/agent-presta
     href: '/agents/ia',
     icon: BotMessageSquare,
     description: 'Découvrez nos agents IA pour créer vos besoins généralistes',
+=======
+    href: '/agents/ai',
+    icon: BotMessageSquare,
+    description: 'Découvrez nos agents IA pour créer vos besoins généralistes',
+  },
+  {
+    title: 'Nos partenaires',
+    href: '/agents/partners',
+    icon: Building,
+    description: 'Découvrez partenaires spécifiques (freelance ou entreprises) pour vos besoins',
+>>>>>>> develop
   }
 ]
 
