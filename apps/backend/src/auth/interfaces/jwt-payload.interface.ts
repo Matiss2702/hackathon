@@ -4,9 +4,3 @@ export interface JwtPayload {
   firstname: string;
   lastname: string;
 }
-
-export interface Role {
-  id: string;
-  name: string;
-  power: number;
-}

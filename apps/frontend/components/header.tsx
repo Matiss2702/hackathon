@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ModeToggle } from "@/components/toggle-theme";
 import { useAuth } from "@/context/AuthContext";
-import { LogOut, User, Menu, X, BotMessageSquare, Building } from "lucide-react";
+import { LogOut, User, Menu, X, BotMessageSquare } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { hasTag } from "@/lib/route";
@@ -14,21 +14,9 @@ import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMe
 const navMainMenu = [
   {
     title: 'Nos agents IA',
-<<<<<<< feat/agent-presta
     href: '/agents/ia',
     icon: BotMessageSquare,
     description: 'Découvrez nos agents IA pour créer vos besoins généralistes',
-=======
-    href: '/agents/ai',
-    icon: BotMessageSquare,
-    description: 'Découvrez nos agents IA pour créer vos besoins généralistes',
-  },
-  {
-    title: 'Nos partenaires',
-    href: '/agents/partners',
-    icon: Building,
-    description: 'Découvrez partenaires spécifiques (freelance ou entreprises) pour vos besoins',
->>>>>>> develop
   }
 ]
 

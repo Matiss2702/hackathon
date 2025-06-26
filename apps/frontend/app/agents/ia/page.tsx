@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from '@/lib/axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function AgentsIAPage() {
   const [agents, setAgents] = useState<any[]>([]);
@@ -36,7 +38,11 @@ export default function AgentsIAPage() {
                 ))}
               </div>
               {a.description && <div className="text-sm mb-2">{a.description}</div>}
-              <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">Accéder à l'agent IA</a>
+              <Button asChild>
+                <Link href={a.url} target="_blank" rel="noopener noreferrer">
+                  Accéder à l&apos;agent IA
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         ))}

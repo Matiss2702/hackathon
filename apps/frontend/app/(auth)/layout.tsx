@@ -16,8 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     return <Loader />;
   }
 
-  const user = decodeJWT(token || '');
-  console.log('🔐 AuthLayout user:', user);
+  decodeJWT(token || '');
   
   return (
     <main className="h-full">

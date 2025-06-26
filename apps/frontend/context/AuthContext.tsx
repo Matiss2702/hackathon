@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     setIsAuthLoading(false);
   }, []);
-
+  
   const login = (accessToken: string) => {
     // stocke l'access token
     localStorage.setItem('auth_token', accessToken);

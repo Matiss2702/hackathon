@@ -8,7 +8,7 @@ export default function Logo() {
         src="/logo.png"
         alt="Lexa Logo"
         width={50}
-        height={30}
+        height={0}
       />
     </>
   )

@@ -25,6 +25,10 @@ const routeMap: RouteCategory[] = [
     path: '/organization',
     tags: ['auth', 'hidden', 'middleware'],
   },
+  {
+    path: '/agents-ia',
+    tags: ['auth', 'hidden', 'middleware'],
+  },
   { path: '/register',
     tags: ['hidden']
   },
