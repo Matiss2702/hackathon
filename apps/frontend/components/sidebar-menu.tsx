@@ -31,7 +31,6 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/axios';
 
 const profileItem = { title: 'Profil', url: '/profile', icon: User };
-const agentsIaItem = { title: 'Mes agents IA', url: '/agents-ia', icon: User };
 
 type NavItem = {
   title: string;
@@ -62,11 +61,14 @@ export default function SidebarNavMenu() {
       .then(async decoded => {
         setToken(decoded);
         try {
+          if (!decoded || !decoded.id) {
+            return;
+          }
+
           const response = await api.get('/user/me')
           setUser(response.data);
-        } catch (error){
+        } catch {
           setToken(null);
-          console.error('❌ Erreur de décodage du token', error);
           router.push('/login');
         }
       })
@@ -99,12 +101,17 @@ export default function SidebarNavMenu() {
           url: '/organization',
           icon: Building,
         },
+        {
+          title: 'Agents IA',
+          url: '/agents-ia',
+          icon: BotMessageSquare,
+        }
       ],
     });
 
     groups.push({
       title: 'Compte',
-      items: [profileItem, agentsIaItem],
+      items: [profileItem],
     });
 
     return groups;

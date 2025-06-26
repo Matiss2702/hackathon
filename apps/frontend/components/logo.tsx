@@ -8,7 +8,8 @@ export default function Logo() {
         src="/logo.png"
         alt="Lexa Logo"
         width={50}
-        height={0}
+        height={30}
+        style={{ height: "auto", width: "auto" }}
       />
     </>
   )

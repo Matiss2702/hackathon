@@ -36,7 +36,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="container flex items-center justify-between top-0 sticky backdrop-blur z-50 p-4">
               <Link href="/" className="block">
                 <Logo />
-                <span className="sr-only">Go to home</span>
+                <span className="sr-only">Aller à l&apos;accueil</span>
               </Link>
               <ModeToggle />
           </div>

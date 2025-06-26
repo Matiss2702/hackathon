@@ -37,34 +37,20 @@ export class AuthService {
 
   /* ----------  REGISTER  ---------- */
   async register(dto: RegisterDto) {
-    console.log("\n🚀 Début du processus d'inscription...");
-    console.log(`📧 Email: ${dto.email}`);
-    console.log(`👤 Nom: ${dto.lastname} ${dto.firstname}`);
-
     try {
-      console.log("\n🔍 Vérification de l'existence de l'utilisateur...");
       const exists = await this.prisma.user.findUnique({
         where: { email: dto.email },
         select: { id: true },
       });
       if (exists) {
-        console.log('❌ Email déjà utilisé');
         throw new ConflictException('Email déjà utilisé');
       }
-      console.log('✅ Email disponible');
-
-      console.log('\n🔒 Hachage du mot de passe...');
       const hash = await bcrypt.hash(dto.password, SALT_ROUNDS);
-      console.log('✅ Mot de passe haché');
-
-      console.log('\n🔑 Génération du token de vérification...');
       const verificationToken = crypto.randomBytes(32).toString('hex');
       const verificationTokenExpires = new Date(
         Date.now() + EMAIL_VERIFICATION_EXPIRY,
       );
-      console.log('✅ Token généré');
 
-      console.log("\n📝 Création de l'utilisateur avec rôle 'user' (enum)...");
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
@@ -72,6 +58,7 @@ export class AuthService {
           lastname: dto.lastname,
           phone_number: dto.phoneNumber,
           is_cgu_accepted: dto.isCguAccepted,
+          companyName: dto.companyName || '',
           is_vgcl_accepted: dto.isVgclAccepted,
           email_verification_token: verificationToken,
           email_verification_token_expires: verificationTokenExpires,
@@ -86,9 +73,6 @@ export class AuthService {
           user_id: user.id,
         },
       });
-      console.log('✅ Utilisateur créé avec succès');
-
-      console.log('\n📧 Envoi de l\'email de vérification...');
       await this.emailService.sendVerificationEmail(
         user.email,
         verificationToken,
@@ -96,7 +80,6 @@ export class AuthService {
 
       return { id: user.id, email: user.email };
     } catch (error) {
-      console.error("\n❌ Erreur dans le processus d'inscription:");
       console.error(error);
       throw error;
     }
@@ -104,11 +87,7 @@ export class AuthService {
 
   /* ----------  LOGIN  ---------- */
   async login(dto: LoginDto) {
-    console.log('\n🚀 Début du processus de connexion...');
-    console.log(`📧 Email: ${dto.email}`);
-
     try {
-      console.log("\n🔍 Recherche de l'utilisateur...");
       const user = await this.prisma.user.findUnique({
         where: { email: dto.email },
         include: {
@@ -117,36 +96,31 @@ export class AuthService {
       });
 
       if (!user) {
-        console.log('❌ Utilisateur non trouvé');
         throw new UnauthorizedException('Identifiants invalides');
       }
-      console.log('✅ Utilisateur trouvé');
 
       if (!user.is_email_verified) {
-        console.log('❌ Email non vérifié');
         throw new UnauthorizedException(
           'Veuillez vérifier votre email avant de vous connecter',
         );
       }
-      console.log('✅ Email vérifié');
 
-      console.log('\n🔒 Vérification du mot de passe...');
-      const ok = await bcrypt.compare(dto.password, user.passwordHistory[0].password);
+      const ok = await bcrypt.compare(
+        dto.password,
+        user.passwordHistory[0].password,
+      );
       if (!ok) {
-        console.log('❌ Mot de passe incorrect');
         throw new UnauthorizedException('Identifiants invalides');
       }
-      console.log('✅ Mot de passe correct');
 
-      console.log("\n📝 Création de l'historique de connexion...");
       await this.prisma.loginHistory.create({ data: { user_id: user.id } });
-      console.log('✅ Historique de connexion créé');
 
       const payload: JwtPayload = {
         sub: user.id,
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
+        id: user.id,
       };
 
       const [accessToken, refreshToken] = await Promise.all([
@@ -159,14 +133,12 @@ export class AuthService {
           expiresIn: '7d',
         }),
       ]);
-      console.log('✅ Tokens générés avec succès');
 
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
       };
     } catch (error) {
-      console.error('\n❌ Erreur dans le processus de connexion:');
       console.error(error);
       throw error;
     }
@@ -213,6 +185,7 @@ export class AuthService {
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
+        id: user.id,
       };
 
       return {
@@ -421,7 +394,8 @@ export class AuthService {
       return {
         code: 404,
         title: 'Utilisateur non trouvé',
-        description: 'Aucun utilisateur trouvé pour ce lien de réinitialisation.',
+        description:
+          'Aucun utilisateur trouvé pour ce lien de réinitialisation.',
       };
     }
 
@@ -439,7 +413,7 @@ export class AuthService {
       return {
         code: 409,
         title: 'Mot de passe incorrect',
-        description: 'L\'ancien mot de passe est incorrect.',
+        description: "L'ancien mot de passe est incorrect.",
       };
     }
 
@@ -463,7 +437,8 @@ export class AuthService {
       return {
         code: 401,
         title: 'Lien déjà utilisé',
-        description: 'Ce lien a déjà été utilisé pour réinitialiser le mot de passe.',
+        description:
+          'Ce lien a déjà été utilisé pour réinitialiser le mot de passe.',
       };
     }
 
@@ -488,7 +463,7 @@ export class AuthService {
       await this.emailService.sendResetPasswordEmail(forgotPassword.user.email);
     } catch (error) {
       console.error(
-        "❌ Erreur lors de l'envoi de l'email de \"Mot de passe réinitialisé\" :",
+        '❌ Erreur lors de l\'envoi de l\'email de "Mot de passe réinitialisé" :',
         error,
       );
     }
@@ -496,7 +471,8 @@ export class AuthService {
     return {
       code: 200,
       title: 'Mot de passe réinitialisé',
-      description: 'Vous pouvez dès à présent vous reconnecter avec votre nouveau mot de passe.',
+      description:
+        'Vous pouvez dès à présent vous reconnecter avec votre nouveau mot de passe.',
     };
   }
 
@@ -505,8 +481,10 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException();
     }
-    // Recharge le user pour vérifier le rôle
-    const dbUser = await this.prisma.user.findUnique({ where: { id: user.sub } });
+
+    const dbUser = await this.prisma.user.findUnique({
+      where: { id: user.sub },
+    });
     if (!dbUser) throw new UnauthorizedException();
     if (dbUser.role === 'admin') {
       return this.prisma.loginHistory.findMany({ orderBy: { date: 'desc' } });

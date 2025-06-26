@@ -1,6 +1,8 @@
 import { Controller, Get, Param, Patch, Body, Delete, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { CurrentUser } from 'src/decorators/CurrentUser';
+import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 @Controller('user')
 export class UserController {
@@ -13,8 +15,11 @@ export class UserController {
 
   @Get('me')
   @UseGuards(AuthGuard)
-  getMe(@Req() req) {
-    return this.userService.findOne(req.user.id);
+  getMe(@CurrentUser() user: JwtPayload) {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+    return this.userService.findOne(user.id);
   }
 
   @Get(':id')

@@ -34,7 +34,7 @@ model User {
   legalStatus       String?
   identityDocument  String?
   rib               String?
-  companyName       String?
+  companyName       String
   companyImage      String?
 
   image             String?
@@ -48,6 +48,8 @@ model User {
   loginHistory      LoginHistory[]
   agentIAs          AgentIA[]
   userAgentIAs      UserAgentIA[]
+  createdAgents     AgentIA[]     @relation("CreatedBy")
+  updatedAgents     AgentIA[]     @relation("UpdatedBy")
 }
 
 model ForgotPassword {
@@ -86,13 +88,24 @@ model AgentIA {
   id           String   @id @default(uuid())
   user         User     @relation(fields: [userId], references: [id])
   userId       String
-  tarif        Float
-  job          String
+  tarif_unique       Float
+  tarif_monthly      Float?
+  tarif_annual       Float?
+  name         String
   skills       String[]
   description  String?
   url          String
   isVisible    Boolean  @default(true)
   userAgentIAs UserAgentIA[]
+
+  created_by    String?
+  createdBy     User?              @relation("CreatedBy", fields: [created_by], references: [id])
+
+  updated_by    String?
+  updatedBy     User?              @relation("UpdatedBy", fields: [updated_by], references: [id])
+
+  created_at                       DateTime  @default(now())
+  updated_at                       DateTime  @updatedAt   
 }
 
 model UserAgentIA {

@@ -1,12 +1,37 @@
-import { IsString, IsNumber, IsArray, IsOptional, IsBoolean } from 'class-validator';
-import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateAgentiaDto {
-  @IsString() job: string;
-  @Type(() => Number)
-  @IsNumber() tarif: number;
-  @IsArray() @IsString({ each: true }) skills: string[];
-  @IsOptional() @IsString() description?: string;
-  @IsString() url: string;
-  @IsOptional() @IsBoolean() isVisible?: boolean;
-} 
+  @IsString()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsArray()
+  skills: string[];
+
+  @IsString()
+  url: string;
+
+  @IsNumber()
+  tarif_unique: number;
+
+  @IsNumber()
+  @IsOptional()
+  tarif_monthly?: number;
+
+  @IsNumber()
+  @IsOptional()
+  tarif_annual?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isVisible?: boolean;
+}

@@ -6,8 +6,6 @@ const prisma = new PrismaClient();
 const COMMON_PASSWORD = 'Password1234!';
 
 async function main() {
-  const genericPassword: string = await bcrypt.hash(COMMON_PASSWORD, 12);
-
   console.log('🌱 Démarrage du processus de seed...');
 
   console.log('🗑️ Suppression des données existantes...');
@@ -18,12 +16,14 @@ async function main() {
   console.log('✅ Données existantes supprimées');
 
   // Création d'un admin
+  const genericPassword: string = await bcrypt.hash(COMMON_PASSWORD, 12);
   const adminUser = await prisma.user.create({
     data: {
       firstname: 'Admin',
       lastname: 'Principal',
       email: 'admin@admin.fr',
       phone_number: faker.phone.number(),
+      companyName: 'Admin Company',
       is_cgu_accepted: true,
       is_vgcl_accepted: true,
       theme_mode: 'dark',
@@ -42,19 +42,20 @@ async function main() {
   console.log(`👑 Admin créé : ${adminUser.email}`);
 
   for (let i = 1; i <= 10; i++) {
+    const genericPassword: string = await bcrypt.hash(COMMON_PASSWORD, 12);
     const firstname = faker.person.firstName();
     const lastname = faker.person.lastName();
     const email = faker.internet
       .email({ firstName: firstname, lastName: lastname })
       .toLowerCase();
     const phone = faker.phone.number();
-
     const user = await prisma.user.create({
       data: {
         firstname,
         lastname,
         email,
         phone_number: phone,
+        companyName: faker.company.name(),
         is_cgu_accepted: true,
         is_vgcl_accepted: true,
         theme_mode: 'light',
