@@ -4,49 +4,11 @@ import { CreateAgentiaDto } from './dto/create-agentia.dto';
 import { UpdateAgentiaDto } from './dto/update-agentia.dto';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { AgentIA } from '@prisma/client';
+import { testUser } from 'src/lib/user-checker.service';
 
 @Injectable()
 export class AgentiaService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async testUser(user: JwtPayload) {
-    if (!user.id) {
-      throw new NotFoundException('Test User : User ID not found in token');
-    }
-
-    const found = await this.prisma.user.findUnique({
-      where: { id: user.id },
-    });
-
-    if (!found) {
-      throw new NotFoundException('Test User : User not found');
-    }
-
-    return found;
-  }
-
-  async create(user: JwtPayload, dto: CreateAgentiaDto) {
-    if (!user) throw new NotFoundException('User not found');
-
-    const userTest = await this.testUser(user);
-    if (!userTest) throw new NotFoundException('User not found');
-
-    if (userTest.role !== 'admin') {
-      throw new NotFoundException(
-        'You are not authorized to create this agent.',
-      );
-    }
-
-    const { ...safeDto } = dto;
-
-    return this.prisma.agentIA.create({
-      data: {
-        ...safeDto,
-        user: { connect: { id: userTest.id } },
-        createdBy: { connect: { id: userTest.id } },
-      },
-    });
-  }
 
   async findAllPublic() {
     let agents = [] as AgentIA[];
@@ -61,12 +23,12 @@ export class AgentiaService {
     return agents;
   }
 
-  async findAll(user: JwtPayload) {
+  async findAll(user: JwtPayload, from?: string) {
     if (!user) {
       throw new NotFoundException('User ID not found');
     }
 
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) {
       throw new NotFoundException('User not found');
     }
@@ -74,14 +36,25 @@ export class AgentiaService {
     let agents = [] as AgentIA[];
 
     if (userTest.role === 'admin') {
-      agents = await this.prisma.agentIA.findMany({
-        orderBy: {
-          updated_at: 'desc',
-        },
-      });
+      if (from && from === 'admin') {
+        agents = await this.prisma.agentIA.findMany({
+          orderBy: {
+            updated_at: 'desc',
+          },
+        });
+      }
+
+      if (from && from === 'organization') {
+        agents = await this.prisma.agentIA.findMany({
+          where: { organization_id: userTest.organization_id },
+          orderBy: {
+            updated_at: 'desc',
+          },
+        });
+      }
     } else {
       agents = await this.prisma.agentIA.findMany({
-        where: { userId: userTest.id },
+        where: { organization_id: userTest.organization_id },
         orderBy: {
           updated_at: 'desc',
         },
@@ -105,15 +78,46 @@ export class AgentiaService {
     return agent;
   }
 
+  async create(user: JwtPayload, dto: CreateAgentiaDto) {
+    if (!user) throw new NotFoundException('User not found');
+
+    const userTest = await testUser(this.prisma, user);
+    if (!userTest) throw new NotFoundException('User not found');
+
+    const allowedRoles = ['admin', 'organization_admin'];
+
+    if (!allowedRoles.includes(userTest.role)) {
+      throw new NotFoundException(
+        'You are not authorized to create this agent.',
+      );
+    }
+
+    if (!userTest.organization_id) {
+      throw new NotFoundException('User organization not found');
+    }
+
+    const { ...safeDto } = dto;
+
+    return this.prisma.agentIA.create({
+      data: {
+        ...safeDto,
+        organization: { connect: { id: userTest.organization_id } },
+        createdBy: { connect: { id: userTest.id } },
+        updatedBy: { connect: { id: userTest.id } },
+      },
+    });
+  }
+
   async update(user: JwtPayload, dto: UpdateAgentiaDto) {
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) {
       throw new NotFoundException('User not found');
     }
 
-    if (userTest.role !== 'admin') {
+    const allowedRoles = ['admin', 'organization_admin'];
+    if (!allowedRoles.includes(userTest.role)) {
       throw new NotFoundException(
-        'You are not authorized to update this agent.',
+        'You are not authorized to update this organization.',
       );
     }
 
@@ -124,6 +128,7 @@ export class AgentiaService {
     const agentExists = await this.prisma.agentIA.findUnique({
       where: { id: dto.id },
     });
+
     if (!agentExists) {
       throw new NotFoundException('Agent not found');
     }
@@ -144,14 +149,15 @@ export class AgentiaService {
       throw new NotFoundException();
     }
 
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) {
       throw new NotFoundException('User not found');
     }
 
-    if (userTest.role !== 'admin') {
+    const allowedRoles = ['admin', 'organization_admin'];
+    if (!allowedRoles.includes(userTest.role)) {
       throw new NotFoundException(
-        'You are not authorized to delete this agent.',
+        'You are not authorized to delete this organization.',
       );
     }
 

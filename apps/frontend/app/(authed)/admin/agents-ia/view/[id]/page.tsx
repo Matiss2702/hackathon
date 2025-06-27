@@ -53,7 +53,7 @@ export default function AgentViewPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <Button asChild>
-          <Link href="/agents-ia" className="flex items-center gap-2">
+          <Link href="/admin/agents-ia" className="flex items-center gap-2">
             <ArrowLeft size={18} />
             Retour
           </Link>

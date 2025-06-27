@@ -3,31 +3,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+import { testUser } from 'src/lib/user-checker.service';
 
 @Injectable()
 export class OrganizationService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async testUser(user: JwtPayload) {
-    if (!user.id) {
-      throw new NotFoundException('Test User : User ID not found in token');
-    }
-
-    const found = await this.prisma.user.findUnique({
-      where: { id: user.id },
-    });
-
-    if (!found) {
-      throw new NotFoundException('Test User : User not found');
-    }
-
-    return found;
-  }
-
   async findAll(user: JwtPayload) {
     if (!user) throw new NotFoundException('User not found');
 
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) throw new NotFoundException('User not found');
     if (userTest.role !== 'admin') {
       throw new NotFoundException(
@@ -52,7 +37,7 @@ export class OrganizationService {
   async create(user: JwtPayload, dto: CreateOrganizationDto) {
     if (!user) throw new NotFoundException('User not found');
 
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) throw new NotFoundException('User not found');
 
     const organization = await this.prisma.organization.create({
@@ -70,15 +55,17 @@ export class OrganizationService {
       },
     });
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        role: 'organization_admin',
-        organization: {
-          connect: { id: organization.id },
+    if (userTest.role !== 'admin') {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          role: 'organization_admin',
+          organization: {
+            connect: { id: organization.id },
+          },
         },
-      },
-    });
+      });
+    }
 
     return organization;
   }
@@ -86,7 +73,7 @@ export class OrganizationService {
   async findOne(user: JwtPayload, id: string) {
     if (!user) throw new NotFoundException('User not found');
 
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) throw new NotFoundException('User not found');
 
     if (!id) throw new NotFoundException('Organization ID not provided');
@@ -109,7 +96,7 @@ export class OrganizationService {
   async update(user: JwtPayload, id: string, dto: UpdateOrganizationDto) {
     if (!user) throw new NotFoundException('User not found');
 
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) throw new NotFoundException('User not found');
 
     if (!id) throw new NotFoundException('Organization ID not provided');
@@ -162,7 +149,7 @@ export class OrganizationService {
   async delete(user: JwtPayload, id: string) {
     if (!user) throw new NotFoundException('User not found');
 
-    const userTest = await this.testUser(user);
+    const userTest = await testUser(this.prisma, user);
     if (!userTest) throw new NotFoundException('User not found');
 
     if (userTest.role !== 'admin') {

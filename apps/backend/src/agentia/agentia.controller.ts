@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Put,
+  Query,
 } from '@nestjs/common';
 import { AgentiaService } from './agentia.service';
 import { CreateAgentiaDto } from './dto/create-agentia.dto';
@@ -32,8 +33,8 @@ export class AgentiaController {
 
   @Get()
   @UseGuards(AuthGuard)
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.agentiaService.findAll(user);
+  findAll(@CurrentUser() user: JwtPayload, @Query('from') from?: string) {
+    return this.agentiaService.findAll(user, from);
   }
 
   @Get(':id')

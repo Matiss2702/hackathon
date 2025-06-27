@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Eye, Pen, Trash } from "lucide-react"
+import { ArrowUpDown, Check, Eye, Pen, Trash, X } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -21,6 +21,7 @@ export type Agent = {
 
 export const columns: ColumnDef<Agent>[] = [
   {
+    id: "id",
     accessorKey: "id",
     header: ({ column }) => {
       return (
@@ -50,6 +51,7 @@ export const columns: ColumnDef<Agent>[] = [
   },
   {
     id: "skills",
+    accessorKey: "skills",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -63,6 +65,7 @@ export const columns: ColumnDef<Agent>[] = [
   },
   {
     id: "tarif_unique",
+    accessorKey: "tarif_unique",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -78,6 +81,7 @@ export const columns: ColumnDef<Agent>[] = [
   },
   {
     id: "tarif_monthly",
+    accessorKey: "tarif_monthly",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -93,6 +97,7 @@ export const columns: ColumnDef<Agent>[] = [
   },
   {
     id: "tarif_annual",
+    accessorKey: "tarif_annual",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -107,6 +112,27 @@ export const columns: ColumnDef<Agent>[] = [
     cell: ({ row }) => row.original.tarif_annual,
   },
   {
+    id: "isVisible",
+    accessorKey: "isVisible",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Visibilité
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      row.original.isVisible ? (
+        <Check className="text-green-500 w-4 h-4" />
+      ) : (
+        <X className="text-red-500 w-4 h-4" />
+      )
+    ),
+  },
+  {
+    id: "created_at",
     accessorKey: "created_at",
     header: ({ column }) => {
       return (
@@ -132,6 +158,7 @@ export const columns: ColumnDef<Agent>[] = [
     },
   },
   {
+    id: "updated_at",
     accessorKey: "updated_at",
     header: ({ column }) => {
       return (

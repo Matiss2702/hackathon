@@ -16,7 +16,7 @@ export default function AIAgentsPage() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await api.get("/agentia");
+        const response = await api.get("/agentia?from=admin");
         Agents(response.data);
       } catch (error) {
         Agents([]);

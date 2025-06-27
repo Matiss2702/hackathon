@@ -47,7 +47,7 @@ export default function AgentDeletePage() {
         position: "top-center",
         description: "L'agent a été supprimé définitivement. Vous allez être redirigé.",
       });
-      router.push("/agents-ia");
+      router.push("/admin/agents-ia");
     } catch (error) {
       toast.error("Échec de la suppression.");
       console.error(error);
@@ -68,7 +68,7 @@ export default function AgentDeletePage() {
     <div className="space-y-6">
       <div>
         <Button asChild>
-          <Link href="/agents-ia" className="flex items-center gap-2">
+          <Link href="/admin/agents-ia" className="flex items-center gap-2">
             <ArrowLeft size={18} />
             Retour
           </Link>
