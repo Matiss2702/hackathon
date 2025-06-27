@@ -45,18 +45,9 @@ export function useCurrentUser(options?: UseCurrentUserOptions) {
     decodeJWT(token)
       .then(async (decoded) => {
         setJWTPayload(decoded);
-        
-        if (!decoded) {
-          setLoading(false);
-          setUser(null);
-          setOrganization(null);
-          return;
-        }
-        
+
         if (!decoded?.id) {
           setLoading(false);
-          setUser(null);
-          setOrganization(null);
           return;
         }
 
@@ -72,8 +63,6 @@ export function useCurrentUser(options?: UseCurrentUserOptions) {
               router.push("/login");
             }
             setLoading(false);
-            setUser(null);
-            setOrganization(null);
             return;
           }
 
@@ -81,28 +70,21 @@ export function useCurrentUser(options?: UseCurrentUserOptions) {
             const org = await api.get(`/organization/${currentUser.organization_id}`);
             setOrganization(org.data);
           } else {
-            setLoading(false);
-            setUser(null);
             setOrganization(null);
-            return;
           }
 
           setLoading(false);
-          setUser(null);
-          setOrganization(null);
-          return;
-        } catch {
+        } catch (error) {
+          console.error("❌ Erreur user/organization", error);
+          if (options?.redirectOnFail) router.push("/login");
           setLoading(false);
-          setUser(null);
-          setOrganization(null);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("❌ Token invalide", err);
         setJWTPayload(null);
         if (options?.redirectOnFail) router.push("/login");
         setLoading(false);
-        setUser(null);
-        setOrganization(null);
       });
   }, [token, options?.search, options?.redirectOnFail, router]);
 
