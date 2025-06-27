@@ -100,4 +100,3 @@ docker compose up --build
 - Mohammed Achraf KHERRAZ
 - Youri Ghlis 
 - Matiss Haillouy
-- Projet hackathon 5IW 2025
