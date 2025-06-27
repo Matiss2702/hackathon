@@ -10,6 +10,8 @@ import { UserModule } from './user/user.module';
 import { AgentiaModule } from './agentia/agentia.module';
 import { OrganizationModule } from './organzation/organization.module';
 import { OrganizationService } from './organzation/organization.service';
+import { TarificationModule } from './tarification/tarification.module';
+import { TarificationService } from './tarification/tarification.service';
 
 @Module({
   imports: [
@@ -21,8 +23,15 @@ import { OrganizationService } from './organzation/organization.service';
     UserModule,
     AgentiaModule,
     OrganizationModule,
+    TarificationModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService, UserService, OrganizationService],
+  providers: [
+    AppService,
+    EmailService,
+    UserService,
+    OrganizationService,
+    TarificationService,
+  ],
 })
 export class AppModule {}

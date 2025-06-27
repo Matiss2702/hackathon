@@ -34,6 +34,29 @@ export class OrganizationService {
     });
   }
 
+  async findOne(user: JwtPayload, id: string) {
+    if (!user) throw new NotFoundException('User not found');
+
+    const userTest = await testUser(this.prisma, user);
+    if (!userTest) throw new NotFoundException('User not found');
+
+    if (!id) throw new NotFoundException('Organization ID not provided');
+
+    const organization = await this.prisma.organization.findUnique({
+      where: { id },
+      include: {
+        createdBy: true,
+        updatedBy: true,
+      },
+    });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return organization;
+  }
+
   async create(user: JwtPayload, dto: CreateOrganizationDto) {
     if (!user) throw new NotFoundException('User not found');
 
@@ -65,29 +88,6 @@ export class OrganizationService {
           },
         },
       });
-    }
-
-    return organization;
-  }
-
-  async findOne(user: JwtPayload, id: string) {
-    if (!user) throw new NotFoundException('User not found');
-
-    const userTest = await testUser(this.prisma, user);
-    if (!userTest) throw new NotFoundException('User not found');
-
-    if (!id) throw new NotFoundException('Organization ID not provided');
-
-    const organization = await this.prisma.organization.findUnique({
-      where: { id },
-      include: {
-        createdBy: true,
-        updatedBy: true,
-      },
-    });
-
-    if (!organization) {
-      throw new NotFoundException('Organization not found');
     }
 
     return organization;

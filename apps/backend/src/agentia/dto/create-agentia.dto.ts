@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsArray,
-  IsBoolean,
-  IsNumber,
-  IsOptional,
-} from 'class-validator';
+import { IsString, IsArray, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreateAgentiaDto {
   @IsString()
@@ -19,17 +13,6 @@ export class CreateAgentiaDto {
 
   @IsString()
   url: string;
-
-  @IsNumber()
-  tarif_unique: number;
-
-  @IsNumber()
-  @IsOptional()
-  tarif_monthly?: number;
-
-  @IsNumber()
-  @IsOptional()
-  tarif_annual?: number;
 
   @IsBoolean()
   @IsOptional()
