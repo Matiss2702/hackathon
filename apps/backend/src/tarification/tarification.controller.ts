@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Put,
+  Query,
 } from '@nestjs/common';
 import { TarificationService } from './tarification.service';
 import { CreateTarificationDto } from './dto/create-tarification.dto';
@@ -38,8 +39,12 @@ export class TarificationController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  findOne(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
-    return this.tarificationService.findOne(user, id);
+  findOne(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Query('from') from?: string,
+  ) {
+    return this.tarificationService.findOne(user, id, from);
   }
 
   @Put(':id')

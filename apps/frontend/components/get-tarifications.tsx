@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Check, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 type ValidTarificationsName = "monthly" | "annually";
 type GetTarificationsProps = {
@@ -149,8 +150,10 @@ export default function GetTarifications({ name }: GetTarificationsProps) {
             {price}
             <span className="text-sm text-muted-foreground">{priceSuffix}</span>
           </p>
-          <Button className="w-full">
-            {isFree ? "Commencer gratuitement" : "S’abonner"}
+          <Button className="w-full" asChild>
+            <Link href={`/subscribe/${tarif.id}?name=${isFree ? "free" : name}`}>
+              {isFree ? "Commencer gratuitement" : "S’abonner"}
+            </Link>
           </Button>
         </CardHeader>
 

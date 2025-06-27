@@ -88,7 +88,7 @@ async function main() {
     },
     {
       name: 'Essentiel',
-      price_monthly: 10.0,
+      price_monthly: 19.0,
       price_annually: 190.0,
       description: ['Indépendants', 'Freelances'],
       token: 100,

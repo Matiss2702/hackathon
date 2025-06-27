@@ -7,6 +7,7 @@ import {
   ChevronRight,
   User,
   BotMessageSquare,
+  Receipt,
 } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 
@@ -29,8 +30,6 @@ import {
 import { decodeJWT, JWTPayload } from '@/lib/decodeJWT';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/axios';
-
-const profileItem = { title: 'Profil', url: '/profile', icon: User };
 
 type NavItem = {
   title: string;
@@ -112,7 +111,18 @@ export default function SidebarNavMenu() {
 
     groups.push({
       title: 'Compte',
-      items: [profileItem],
+      items: [
+        {
+          title: 'Profil',
+          url: '/profile',
+          icon: User,
+        },
+        {
+          title: 'Abonnements',
+          url: '/subscription',
+          icon: Receipt,
+        },
+      ],
     });
 
     return groups;

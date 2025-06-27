@@ -2,7 +2,7 @@
 
 import Tarification from "@/components/tarification";
 
-export default function Home() {
+export default function Plans() {
   return (
     <Tarification />
   )
