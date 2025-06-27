@@ -18,10 +18,10 @@ const roboto = Roboto({
 
 export const metadata = {
   title: {
-    default: 'Lexa',
-    template: 'Lexa | %s',
+    default: 'Noku',
+    template: 'Noku | %s',
   },
-  description: 'Lexa est une plateforme de mise en relation entre les dirigeants d’entreprise et les prestataires de services.',
+  description: 'Noku est une plateforme de mise en relation entre les dirigeants d’entreprise et les prestataires de services.',
 };
 
 export default function RootLayout({
