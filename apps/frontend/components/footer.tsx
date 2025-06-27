@@ -23,7 +23,7 @@ export default function Footer() {
                 <span className="sr-only">Page d&apos;accueil</span>
               </Link>
               <p>
-                Lexa est une plateforme de création de sites web et d&apos;applications avec l&apos;IA
+                Noku est une plateforme de création de sites web et d&apos;applications avec l&apos;IA
               </p>
             </div>
           </div>
@@ -40,7 +40,7 @@ export default function Footer() {
           </div>
         </div>
         <div>
-          <p className='tex-sm'>© 2025 Lexa, tout droit réservé</p>
+          <p className='tex-sm'>© 2025 Noku, tout droit réservé</p>
         </div>
       </div>
     </footer>

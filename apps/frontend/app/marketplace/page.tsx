@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import api from '@/lib/axios';
-import { useCurrentUser } from "@/lib/useCurrentUser"; // Assure-toi que ce hook est dispo
+import { useCurrentUser } from "@/lib/useCurrentUser";
 
 interface Agent {
   id: string;
@@ -56,7 +56,9 @@ export default function AgentsIAPage() {
     const fetchSubscriptions = async () => {
       try {
         const response = await api.get(`/subscription`);
-        setSubscriptions(response.data);
+        if (response.status === 200) {
+          setSubscriptions(response.data);
+        }
       } catch (err) {
         console.error("Erreur lors du chargement des souscriptions", err);
       }

@@ -98,7 +98,7 @@ export default function SubscribePage() {
           name: tarification.name,
           token: tarification.token,
           description: tarification.description,
-          price: name === "monthly" ? tarification.price_monthly : tarification.price_annually,
+          price: name === "annually" ? tarification.price_annually : tarification.price_monthly,
         }
       };
 
