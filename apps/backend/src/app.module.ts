@@ -2,22 +2,40 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaService } from './prisma/prisma.service';
+import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailService } from './email.service';
+import { UserService } from './user/user.service';
+import { UserModule } from './user/user.module';
+import { AgentiaModule } from './agentia/agentia.module';
+import { OrganizationModule } from './organzation/organization.module';
+import { OrganizationService } from './organzation/organization.service';
+import { TarificationModule } from './tarification/tarification.module';
+import { TarificationService } from './tarification/tarification.service';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { SubscriptionService } from './subscription/subscription.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    PrismaModule,
     AuthModule,
+    UserModule,
+    AgentiaModule,
+    OrganizationModule,
+    TarificationModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    PrismaService,
     EmailService,
+    UserService,
+    OrganizationService,
+    TarificationService,
+    SubscriptionService,
   ],
 })
 export class AppModule {}

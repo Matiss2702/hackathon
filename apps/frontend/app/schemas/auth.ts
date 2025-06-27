@@ -38,7 +38,7 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
-    oldPassword: z.string().min(6, 'L’ancien mot de passe doit contenir au moins 6 caractères'),
+    oldPassword: z.string().min(6, 'L\'ancien mot de passe doit contenir au moins 6 caractères'),
     newPassword: z.string().min(6, 'Le nouveau mot de passe doit contenir au moins 6 caractères'),
     confirmPassword: z.string().min(6, 'La confirmation doit contenir au moins 6 caractères'),
     token: z.string().min(1, 'Le token est requis'),

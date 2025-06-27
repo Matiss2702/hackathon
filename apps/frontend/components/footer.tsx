@@ -23,14 +23,24 @@ export default function Footer() {
                 <span className="sr-only">Page d&apos;accueil</span>
               </Link>
               <p>
-                Services CEO est une plateforme de mise en relation entre les dirigeants d’entreprise et les prestataires de services.
+                Lexa est une plateforme de création de sites web et d&apos;applications avec l&apos;IA
               </p>
             </div>
           </div>
-
+          <div className=''>
+            <h3 className='text-lg font-semibold mb-2'>Liens utiles</h3>
+            <ul className='space-y-2'>
+              <li>
+                <Link href="/cgu" className='text-sm hover:underline'>CGU</Link>
+              </li>
+              <li>
+                <Link href="/cgv" className='text-sm hover:underline'>CGV</Link>
+              </li>
+            </ul>
+          </div>
         </div>
         <div>
-          <p className='tex-sm'>© 2025 Services CEO, tout droit réservé</p>
+          <p className='tex-sm'>© 2025 Lexa, tout droit réservé</p>
         </div>
       </div>
     </footer>
