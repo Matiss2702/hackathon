@@ -7,9 +7,6 @@ import { Button } from "@/components/ui/button"
 
 export type Agent = {
   id: string
-  tarif_unique: number
-  tarif_monthly: number
-  tarif_annual: number
   created_at: string
   updated_at: string
   description: string
@@ -62,54 +59,6 @@ export const columns: ColumnDef<Agent>[] = [
       </Button>
     ),
     cell: ({ row }) => row.original.skills.join(", "),
-  },
-  {
-    id: "tarif_unique",
-    accessorKey: "tarif_unique",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
-      >
-        Tarif journalier
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => row.original.tarif_unique,
-  },
-  {
-    id: "tarif_monthly",
-    accessorKey: "tarif_monthly",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
-      >
-        Tarif mensuel
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => row.original.tarif_monthly,
-  },
-  {
-    id: "tarif_annual",
-    accessorKey: "tarif_annual",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
-      >
-        Tarif annuel
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => row.original.tarif_annual,
   },
   {
     id: "isVisible",

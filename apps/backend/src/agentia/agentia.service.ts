@@ -18,6 +18,13 @@ export class AgentiaService {
       orderBy: {
         name: 'asc',
       },
+      include: {
+        organization: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     return agents;

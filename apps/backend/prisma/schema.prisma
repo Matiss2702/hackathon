@@ -44,6 +44,8 @@ model User {
   updatedOrganization     Organization[]     @relation("UpdatedBy")
   organization      Organization?  @relation(fields: [organization_id], references: [id])
   organization_id   String?
+  createdTarification     Tarification[]    @relation("CreatedBy")
+  updatedTarification     Tarification[]    @relation("UpdatedBy")
 }
 
 model ForgotPassword {
@@ -84,9 +86,6 @@ model AgentIA {
   skills         String[]
   description    String?
   url            String
-  tarif_unique   Float
-  tarif_monthly  Float?
-  tarif_annual   Float?
   isVisible      Boolean  @default(true)
 
   organization_id  String?
@@ -122,4 +121,21 @@ model Organization {
   updated_at        DateTime  @updatedAt
 
   deleted_at        DateTime?
+}
+
+model Tarification {
+  id                String    @id @default(uuid())
+  name              String
+  price_monthly     Float
+  price_annually    Float
+  token             Int
+  description       String[]
+  order             Int
+  created_by        String?
+  createdBy         User?     @relation("CreatedBy", fields: [created_by], references: [id])
+  created_at        DateTime  @default(now())
+
+  updated_by        String?
+  updatedBy         User?     @relation("UpdatedBy", fields: [updated_by], references: [id])
+  updated_at        DateTime  @updatedAt
 }

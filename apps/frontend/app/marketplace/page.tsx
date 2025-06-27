@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from '@/lib/axios';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -13,12 +13,12 @@ interface Agent {
   description: string;
   url: string;
   skills?: string[];
-  tarif_unique: number;
-  tarif_monthly: number;
-  tarif_annual: number;
   user?: {
     firstname: string;
     lastname: string;
+  };
+  organization: {
+    name: string;
   };
 }
 
@@ -53,6 +53,10 @@ export default function AgentsIAPage() {
               )}
             </CardHeader>
             <CardContent className='grid grid-cols-1 gap-4'>
+              <div>
+                <h2 className='text-2xl font-bold'>Proposé par :</h2>
+                <p>{a.organization.name}</p>
+              </div>
               <div className="flex flex-col gap-2">
                 <h2 className='text-2xl font-bold'>Spécialités :</h2>
                 <div className='flex flex-wrap gap-1'>
@@ -61,20 +65,14 @@ export default function AgentsIAPage() {
                   ))}
                 </div>
               </div>
-              <div>
-                <h2 className='text-2xl font-bold'>Tarifications :</h2>
-                <ul>
-                  <li>Tarif Journalier : {a.tarif_unique} €</li>
-                  <li>Tarif Mensuel : {a.tarif_monthly} €</li>
-                  <li>Tarif Annuel : {a.tarif_annual} €</li>
-                </ul>
-              </div>
-              <Button asChild>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full">
                 <Link href={a.url} target="_blank" rel="noopener noreferrer">
                   Accéder à l&apos;agent IA
                 </Link>
               </Button>
-            </CardContent>
+            </CardFooter>
           </Card>
         ))}
       </div>

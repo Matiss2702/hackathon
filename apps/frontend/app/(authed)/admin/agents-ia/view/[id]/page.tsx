@@ -17,9 +17,6 @@ type AgentData = {
   description: string;
   skills: string[];
   url?: string;
-  tarif_unique: number;
-  tarif_monthly: number;
-  tarif_annual: number;
   isVisible: boolean;
 };
 
@@ -87,14 +84,6 @@ export default function AgentViewPage() {
                   <Badge key={skill}>{skill}</Badge>
                 ))}
               </div>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">Tarifs :</h2>
-              <ul className="list-disc list-inside text-muted-foreground">
-                <li>Unique : {agent.tarif_unique} €</li>
-                <li>Mensuel : {agent.tarif_monthly} €</li>
-                <li>Annuel : {agent.tarif_annual} €</li>
-              </ul>
             </div>
           </CardContent>
         </Card>

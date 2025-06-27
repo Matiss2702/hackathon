@@ -34,9 +34,6 @@ export default function AIAgentsNewPage() {
       description: "",
       skills: [],
       url: "",
-      tarif_unique: 1,
-      tarif_monthly: 0,
-      tarif_annual: 0,
       isVisible: false,
     },
   });
@@ -166,61 +163,6 @@ export default function AIAgentsNewPage() {
                 </FormItem>
               )}
             />
-
-            {/* Tarifs */}
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="tarif_unique"
-                render={({ field }) => (
-                  <FormItem className="grid girid-cols-1 gap-2">
-                    <FormLabel>Tarif unique (€)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="tarif_monthly"
-                render={({ field }) => (
-                  <FormItem className="grid girid-cols-1 gap-2">
-                    <FormLabel>Tarif mensuel (€)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="tarif_annual"
-                render={({ field }) => (
-                  <FormItem className="grid girid-cols-1 gap-2">
-                    <FormLabel>Tarif annuel (€)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? "Création en cours..." : "Créer l'agent"}

@@ -13,6 +13,8 @@ async function main() {
   await prisma.forgotPassword.deleteMany();
   await prisma.loginHistory.deleteMany();
   await prisma.organization.deleteMany();
+  await prisma.tarification.deleteMany();
+  await prisma.agentIA.deleteMany();
   await prisma.user.deleteMany();
   console.log('✅ Données existantes supprimées');
 
@@ -40,7 +42,7 @@ async function main() {
   });
 
   const siren = faker.string.numeric(9);
-  await prisma.organization.create({
+  const organizationAdmin = await prisma.organization.create({
     data: {
       name: 'Lexa',
       siren: `${siren}`,
@@ -53,7 +55,75 @@ async function main() {
     },
   });
 
+  await prisma.agentIA.create({
+    data: {
+      name: 'Lexa',
+      description:
+        'Votre assistante personnelle pour la gestion de site vitrine.',
+      url: 'https://localhost:3002',
+      isVisible: true,
+      skills: [
+        'gestion de site vitrine',
+        'assistance personnelle',
+        'React',
+        'Next.js',
+        'Vercel',
+      ],
+      createdBy: { connect: { id: adminUser.id } },
+      updatedBy: { connect: { id: adminUser.id } },
+      organization: { connect: { id: organizationAdmin.id } },
+    },
+  });
+
   console.log(`👑 Admin créé : ${adminUser.email}`);
+
+  console.log('💶 Création des tarifications...');
+  const tarifications = [
+    {
+      name: 'Découverte',
+      price_monthly: 0.0,
+      price_annually: 0.0,
+      description: ["Pour découvrir l'outil."],
+      token: 5,
+    },
+    {
+      name: 'Essentiel',
+      price_monthly: 10.0,
+      price_annually: 190.0,
+      description: ['Indépendants', 'Freelances'],
+      token: 100,
+    },
+    {
+      name: 'Pro',
+      price_monthly: 39.0,
+      price_annually: 390.0,
+      description: ['Petites équipes.', 'Créateur e-commerce'],
+      token: 200,
+    },
+  ];
+
+  let cptTarif = 0;
+  for (const tarif of tarifications) {
+    cptTarif += 1;
+    const test = await prisma.tarification.create({
+      data: {
+        name: tarif.name,
+        price_monthly: tarif.price_monthly,
+        price_annually: tarif.price_annually,
+        description: tarif.description,
+        token: tarif.token,
+        order: cptTarif,
+        createdBy: { connect: { id: adminUser.id } },
+        updatedBy: { connect: { id: adminUser.id } },
+      },
+    });
+
+    if (test) {
+      console.log(`💰 Tarification "${tarif.name}" créée avec succès.`);
+    }
+  }
+
+  console.log('✅ Tarifications créées.');
 
   for (let i = 1; i <= 10; i++) {
     const genericPassword: string = await bcrypt.hash(COMMON_PASSWORD, 12);

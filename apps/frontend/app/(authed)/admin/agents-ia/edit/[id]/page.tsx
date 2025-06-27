@@ -42,9 +42,6 @@ export default function EditAgentPage() {
       description: "",
       skills: [],
       url: "",
-      tarif_unique: 0,
-      tarif_monthly: 0,
-      tarif_annual: 0,
       isVisible: false,
     },
   });
@@ -203,36 +200,6 @@ export default function EditAgentPage() {
               </FormItem>
             )}
           />
-
-          {/* Tarifs */}
-          <div className="grid grid-cols-3 gap-4">
-            {["tarif_unique", "tarif_monthly", "tarif_annual"].map((name) => (
-              <FormField
-                key={name}
-                control={form.control}
-                name={name as keyof AgentUpdateFormData}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {{
-                        tarif_unique: "Tarif unique (€)",
-                        tarif_monthly: "Tarif mensuel (€)",
-                        tarif_annual: "Tarif annuel (€)",
-                      }[name]}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        value={field.value as number}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
 
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? "Mise à jour..." : "Mettre à jour"}
