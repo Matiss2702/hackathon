@@ -53,7 +53,7 @@ export default function AIAgentsNewPage() {
           description: "Vous allez être redirigé vers la liste des agents.",
         });
         setResponse(response.data);
-        router.push("/agents-ia");
+        router.push("/admin/agents-ia");
       }
     } catch (error){
       console.error("Erreur lors de la création de l'agent :", error);
@@ -69,7 +69,7 @@ export default function AIAgentsNewPage() {
     <div className="grid grid-cols-1 gap-4">
       <div>
         <Button asChild>
-          <Link href="/agents-ia" className="flex items-center gap-2">
+          <Link href="/admin/agents-ia" className="flex items-center gap-2">
             <ArrowLeft />
             Retour
           </Link>
