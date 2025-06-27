@@ -45,7 +45,7 @@ export class TarificationService {
     return tarifications;
   }
 
-  async findOne(user: JwtPayload, id: string) {
+  async findOne(user: JwtPayload, id: string, from?: string) {
     if (!user) {
       throw new NotFoundException('User ID not found');
     }
@@ -55,10 +55,12 @@ export class TarificationService {
       throw new NotFoundException('User not found');
     }
 
-    if (userTest.role !== 'admin') {
-      throw new NotFoundException(
-        'You are not authorized to view this tarificationia.',
-      );
+    if (from && from !== 'front') {
+      if (userTest.role !== 'admin') {
+        throw new NotFoundException(
+          'You are not authorized to view this tarificationia.',
+        );
+      }
     }
 
     if (!id) {

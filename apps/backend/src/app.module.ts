@@ -12,6 +12,8 @@ import { OrganizationModule } from './organzation/organization.module';
 import { OrganizationService } from './organzation/organization.service';
 import { TarificationModule } from './tarification/tarification.module';
 import { TarificationService } from './tarification/tarification.service';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { SubscriptionService } from './subscription/subscription.service';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { TarificationService } from './tarification/tarification.service';
     AgentiaModule,
     OrganizationModule,
     TarificationModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [
@@ -32,6 +35,7 @@ import { TarificationService } from './tarification/tarification.service';
     UserService,
     OrganizationService,
     TarificationService,
+    SubscriptionService,
   ],
 })
 export class AppModule {}
