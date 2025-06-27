@@ -5,10 +5,51 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const COMMON_PASSWORD = 'Password1234!';
 
+const agentDescriptions = [
+  'Assistant IA personnalisé pour les PME.',
+  'Expert en automatisation de contenu web.',
+  'Assistant dédié au support client 24/7.',
+  'Votre assistant IA spécialisé en e-commerce.',
+  'Outil intelligent pour la gestion de votre site vitrine.',
+  'Conseiller virtuel pour freelances et indépendants.',
+  'Gestionnaire IA pour portails Next.js et React.',
+  'Assistant pour campagnes marketing automatisées.',
+];
+
+const agentSkills = [
+  'gestion de site vitrine',
+  'support IA',
+  'Next.js',
+  'TypeScript',
+  'automatisation marketing',
+  'React',
+  'Vercel',
+  'Node.js',
+  'intégration API',
+  'gestion de contenu',
+];
+
+const agentNames = [
+  'SiteHelper',
+  'WebGenie',
+  'NextAssist',
+  'AutoSite',
+  'SmartBot',
+  'Reacto',
+  'VitrineAI',
+  'FormulBot',
+  'PixelPilot',
+];
+
+function getRandomItems<T>(array: T[], count: number): T[] {
+  return [...array].sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
 async function main() {
   console.log('🌱 Démarrage du processus de seed...');
 
   console.log('🗑️ Suppression des données existantes...');
+  await prisma.subscription.deleteMany();
   await prisma.passwordHistory.deleteMany();
   await prisma.forgotPassword.deleteMany();
   await prisma.loginHistory.deleteMany();
@@ -18,7 +59,6 @@ async function main() {
   await prisma.user.deleteMany();
   console.log('✅ Données existantes supprimées');
 
-  // Création d'un admin
   const genericPassword: string = await bcrypt.hash(COMMON_PASSWORD, 12);
   const adminUser = await prisma.user.create({
     data: {
@@ -44,8 +84,8 @@ async function main() {
   const siren = faker.string.numeric(9);
   const organizationAdmin = await prisma.organization.create({
     data: {
-      name: 'Lexa',
-      siren: `${siren}`,
+      name: 'Noku',
+      siren,
       siret: `${siren}${faker.string.numeric(5)}`,
       rib: `FR${faker.string.numeric(2)}${faker.string.numeric(10)}${faker.string.numeric(11)}${faker.string.numeric(2)}`,
       vat: `FR${faker.string.numeric(2)}${siren}`,
@@ -57,7 +97,7 @@ async function main() {
 
   await prisma.agentIA.create({
     data: {
-      name: 'Lexa',
+      name: 'WebCreaft AI',
       description:
         'Votre assistante personnelle pour la gestion de site vitrine.',
       url: 'https://localhost:3002',
@@ -78,7 +118,7 @@ async function main() {
   console.log(`👑 Admin créé : ${adminUser.email}`);
 
   console.log('💶 Création des tarifications...');
-  const tarifications = [
+  const tarificationsData = [
     {
       name: 'Découverte',
       price_monthly: 0.0,
@@ -102,30 +142,21 @@ async function main() {
     },
   ];
 
-  let cptTarif = 0;
-  for (const tarif of tarifications) {
-    cptTarif += 1;
-    const test = await prisma.tarification.create({
+  for (let i = 0; i < tarificationsData.length; i++) {
+    await prisma.tarification.create({
       data: {
-        name: tarif.name,
-        price_monthly: tarif.price_monthly,
-        price_annually: tarif.price_annually,
-        description: tarif.description,
-        token: tarif.token,
-        order: cptTarif,
+        ...tarificationsData[i],
+        order: i + 1,
         createdBy: { connect: { id: adminUser.id } },
         updatedBy: { connect: { id: adminUser.id } },
       },
     });
-
-    if (test) {
-      console.log(`💰 Tarification "${tarif.name}" créée avec succès.`);
-    }
   }
 
   console.log('✅ Tarifications créées.');
+  const tarifications = await prisma.tarification.findMany();
 
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 20; i++) {
     const genericPassword: string = await bcrypt.hash(COMMON_PASSWORD, 12);
     const firstname = faker.person.firstName();
     const lastname = faker.person.lastName();
@@ -133,6 +164,8 @@ async function main() {
       .email({ firstName: firstname, lastName: lastname })
       .toLowerCase();
     const phone = faker.phone.number();
+    const isOrgAdmin = i % 3 === 0;
+
     const user = await prisma.user.create({
       data: {
         firstname,
@@ -143,7 +176,7 @@ async function main() {
         is_vgcl_accepted: true,
         theme_mode: 'light',
         is_email_verified: true,
-        role: 'user',
+        role: isOrgAdmin ? 'organization_admin' : 'user',
       },
     });
 
@@ -154,10 +187,88 @@ async function main() {
       },
     });
 
-    console.log(`👤 Utilisateur ${i} : ${user.email} créé avec le rôle "user"`);
+    console.log(`👤 Utilisateur ${i} : ${user.email} | Rôle : ${user.role}`);
+
+    if (isOrgAdmin) {
+      const siren = faker.string.numeric(9);
+      const org = await prisma.organization.create({
+        data: {
+          name: `${firstname} Org`,
+          siren,
+          siret: `${siren}${faker.string.numeric(5)}`,
+          rib: `FR${faker.string.numeric(2)}${faker.string.numeric(10)}${faker.string.numeric(11)}${faker.string.numeric(2)}`,
+          vat: `FR${faker.string.numeric(2)}${siren}`,
+          createdBy: { connect: { id: user.id } },
+          updatedBy: { connect: { id: user.id } },
+          users: { connect: { id: user.id } },
+        },
+      });
+
+      for (let j = 1; j <= 2; j++) {
+        const botName =
+          agentNames[Math.floor(Math.random() * agentNames.length)];
+        const botDescription =
+          agentDescriptions[
+            Math.floor(Math.random() * agentDescriptions.length)
+          ];
+        const botSkills = getRandomItems(agentSkills, 4);
+
+        await prisma.agentIA.create({
+          data: {
+            name: `${botName} ${j}`,
+            description: botDescription,
+            url: `https://localhost:30${i}${j}`,
+            isVisible: true,
+            skills: botSkills,
+            createdBy: { connect: { id: user.id } },
+            updatedBy: { connect: { id: user.id } },
+            organization: { connect: { id: org.id } },
+          },
+        });
+      }
+
+      console.log(`🏢 Organisation créée pour ${user.email} avec 2 agents IA.`);
+    } else if (i % 2 === 0) {
+      const selectedTarif =
+        tarifications[Math.floor(Math.random() * tarifications.length)];
+      const planType = Math.random() > 0.5 ? 'monthly' : 'annually';
+
+      const end_at = new Date();
+      if (planType === 'annually') {
+        end_at.setFullYear(end_at.getFullYear() + 1);
+      } else {
+        end_at.setMonth(end_at.getMonth() + 1);
+      }
+
+      await prisma.subscription.create({
+        data: {
+          user: { connect: { id: user.id } },
+          tarification: {
+            id: selectedTarif.id,
+            name: selectedTarif.name,
+            planType,
+            price:
+              planType === 'annually'
+                ? selectedTarif.price_annually
+                : selectedTarif.price_monthly,
+            token: selectedTarif.token,
+            description: selectedTarif.description,
+          },
+          createdBy: { connect: { id: user.id } },
+          updatedBy: { connect: { id: user.id } },
+          end_at,
+        },
+      });
+
+      console.log(
+        `📦 Souscription créée pour ${user.email} (${selectedTarif.name}, ${planType})`,
+      );
+    }
   }
 
-  console.log('✅ Tous les utilisateurs ont été générés.');
+  console.log(
+    '✅ Tous les utilisateurs, organisations, bots et abonnements ont été générés.',
+  );
 }
 
 main()
